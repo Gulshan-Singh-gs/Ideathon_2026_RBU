@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="alternate icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%235b6cf9'/%3E%3Cpath d='M16 6.5 L24 10.2 V16.5 C24 21.2 16 25.5 16 25.5 C16 25.5 8 21.2 8 16.5 Z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='15' r='2.2' fill='white'/%3E%3C/svg%3E">
+<title>Project AEGIS — Decoding Instinct, Encoding Intent</title>
+<style>
+:root{
+  --bg:#e4e9f2;
+  --ink:#333a52;
+  --mut:#5a6178;
+  --acc:#5b6cf9;
+  --acc-rgb:91,108,249;
+  --line:#b9c0d4;
+  --shadow-dark:#c8cfdc;
+  --shadow-light:#ffffff;
+  --shadow-raised:7px 7px 14px var(--shadow-dark), -7px -7px 14px var(--shadow-light);
+  --shadow-raised-sm:4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  --shadow-inset:inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  --shadow-pressed:inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+  --r-card:18px; --r-tile:14px; --r-pill:999px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--mut);font-family:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;font-weight:400;line-height:1.45;display:flex;flex-direction:column;height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased}
+.ic{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+.ic-fill{fill:currentColor !important;stroke:none !important}
+b,strong{font-weight:700;color:var(--ink)}
+button{font-family:inherit;border:none;background:none}
+
+/* HUD Navigation */
+.hud{flex:none;padding:12px 24px 8px;position:relative;z-index:50}
+.ptrack{position:relative;height:12px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset)}
+.pfill{position:absolute;top:3px;bottom:3px;left:3px;width:calc((100% - 6px) * .125);border-radius:var(--r-pill);background:var(--acc);box-shadow:var(--shadow-raised-sm);transition:width .3s ease}
+.hudrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+.brand{display:inline-flex;align-items:center;gap:8px;padding:7px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-raised-sm);font-size:11px;font-weight:700;color:var(--mut);white-space:nowrap;background:var(--bg)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex:none}
+.dots{display:flex;gap:10px;padding:9px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-raised-sm);background:var(--bg)}
+.ndot{width:13px;height:13px;border-radius:50%;box-shadow:var(--shadow-raised-sm);background:var(--bg);cursor:pointer;position:relative;padding:0;transition:box-shadow .18s ease}
+.ndot:hover{box-shadow:var(--shadow-inset)}
+.ndot.active{box-shadow:var(--shadow-inset)}
+.ndot.active::after{content:"";position:absolute;inset:3.5px;border-radius:50%;background:var(--acc)}
+.hud-actions{display:flex;align-items:center;gap:9px}
+.icobtn{width:36px;height:36px;border-radius:50%;background:var(--bg);box-shadow:var(--shadow-raised-sm);color:var(--mut);display:grid;place-items:center;cursor:pointer;transition:box-shadow .18s ease,color .18s ease;touch-action:manipulation}
+.icobtn:hover,.icobtn:active{box-shadow:var(--shadow-inset);color:var(--ink)}
+.icobtn.active{box-shadow:var(--shadow-inset);color:var(--acc)}
+.counter{padding:7px 16px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;min-width:60px;text-align:center}
+
+/* Stage & Frame */
+.stage{position:relative;flex:1;min-height:0;overscroll-behavior:none}
+.frame{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform:translate(-50%,-50%);transform-origin:center}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;padding:38px 7.5% 34px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .26s ease,visibility 0s linear .26s}
+.slide.active{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .26s ease}
+
+/* Slide Typography & Header */
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--acc)}
+.shead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:12px;flex:none}
+.stitle{font-size:25px;font-weight:800;color:var(--ink);letter-spacing:-.015em;line-height:1.15;margin-top:3px}
+.ssub{font-size:12px;color:var(--mut);margin-top:4px;max-width:80ch;line-height:1.45;font-weight:500}
+.hbadges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding-top:14px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--r-pill);box-shadow:var(--shadow-raised-sm);font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--ink);white-space:nowrap;background:var(--bg)}
+.tag .ic{width:11px;height:11px;color:var(--acc)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3.5px 11px;border-radius:var(--r-pill);box-shadow:var(--shadow-raised-sm);font-size:8.5px;font-weight:800;letter-spacing:.08em;color:var(--ink);white-space:nowrap;background:var(--bg);flex:none}
+.badge .ic{width:10px;height:10px}
+.b-ver .ic{color:var(--acc)}
+.b-ver{color:var(--acc)}
+
+/* Body & Footer */
+.body{flex:1;min-height:0;display:flex;flex-direction:column;gap:12px}
+.sfoot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px;flex-wrap:wrap}
+.fmeta{display:flex;align-items:center;gap:10px;font-size:10.5px;color:var(--mut);font-weight:500}
+.pageno{padding:6px 15px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);font-size:9.5px;font-weight:800;letter-spacing:.12em;color:var(--mut);font-variant-numeric:tabular-nums;white-space:nowrap}
+.mini{width:24px;height:24px;border-radius:50%;box-shadow:var(--shadow-raised-sm);display:grid;place-items:center;color:var(--mut);flex:none;background:var(--bg)}
+.mini .ic{width:12px;height:12px}
+.mini.acc{color:var(--acc)}
+.conn{width:5px;height:14px;border-radius:3px;background:var(--line);flex:none}
+.conn-h{width:24px;height:5px;border-radius:3px;background:var(--line);flex:none}
+.nic{width:36px;height:36px;border-radius:50%;box-shadow:var(--shadow-raised-sm);display:grid;place-items:center;color:var(--acc);flex:none;background:var(--bg)}
+.nic .ic{width:17px;height:17px}
+.nic.mut{color:var(--mut)}
+.nic.sm{width:30px;height:30px}.nic.sm .ic{width:14px;height:14px}
+.nic.lg{width:64px;height:64px}.nic.lg .ic{width:32px;height:32px}
+.seclabel{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.seclabel .ic{width:12px;height:12px;color:var(--acc)}
+
+/* Navigation Controls */
+.navb{position:fixed;top:50%;transform:translateY(-50%);width:54px;height:54px;border-radius:50%;background:var(--bg);box-shadow:var(--shadow-raised);color:var(--mut);display:grid;place-items:center;cursor:pointer;z-index:60;transition:box-shadow .18s ease,color .18s ease,opacity .18s ease;touch-action:manipulation}
+.navb:hover,.navb:active{box-shadow:var(--shadow-pressed);color:var(--ink)}
+.navb:disabled{opacity:.45;cursor:default}
+.navb:disabled:hover{box-shadow:var(--shadow-raised);color:var(--mut)}
+.navb .ic{width:22px;height:22px}
+.navb.prev{left:18px}.navb.next{right:18px}
+.edge{position:fixed;top:0;bottom:0;width:72px;z-index:40;cursor:pointer;display:flex;align-items:center}
+.edge-l{left:0;justify-content:flex-start;padding-left:5px}
+.edge-r{right:0;justify-content:flex-end;padding-right:5px}
+.edge .ic{width:18px;height:18px;color:var(--mut);opacity:0;transition:opacity .2s ease}
+.edge:hover .ic{opacity:.5}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:var(--r-pill)}
+
+/* Photo & Research Media Components */
+.photo-circle{width:56px;height:56px;border-radius:50%;box-shadow:var(--shadow-raised-sm);overflow:hidden;border:2.5px solid #ffffff;flex:none;background:var(--bg)}
+.photo-circle img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-frame{border-radius:var(--r-tile);box-shadow:var(--shadow-inset);padding:4px;background:var(--bg);overflow:hidden;position:relative}
+.photo-frame img{width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-tile) - 4px);display:block}
+.photo-caption{font-size:8.5px;font-weight:700;letter-spacing:.06em;color:var(--mut);text-transform:uppercase;display:flex;align-items:center;gap:5px}
+
+/* Slide 1 Ultra-Premium Styles */
+.s1-wrap{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;height:100%}
+
+/* Top Architecture Hero Card */
+.s1-arch-hero{border-radius:var(--r-card);box-shadow:0 8px 24px rgba(91,108,249,.08), var(--shadow-raised);padding:14px 22px 16px;background:var(--bg);display:flex;flex-direction:column;gap:12px;border:1.5px solid rgba(91,108,249,.35);flex:1;min-height:0;justify-content:space-between}
+.s1-arch-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid rgba(185,192,212,.35);flex:none}
+.s1-arch-title{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.s1-flow-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex:1}
+
+/* 3 Core Nodes */
+.s1-node{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:12px 14px;border-radius:var(--r-tile);box-shadow:var(--shadow-raised-sm);background:var(--bg);border:1px solid rgba(255,255,255,.8);position:relative;transition:transform .2s ease;min-height:0}
+.s1-node.core-bridge{border-color:rgba(91,108,249,.45);box-shadow:0 6px 18px rgba(91,108,249,.12), var(--shadow-raised-sm)}
+.s1-node .nic{width:52px;height:52px;box-shadow:var(--shadow-inset)}
+.s1-node .nic .ic{width:25px;height:25px}
+.s1-node .nic.accent-glow{color:var(--acc);border:1.5px solid rgba(91,108,249,.35)}
+.s1-node-title{font-size:13px;font-weight:900;color:var(--ink);letter-spacing:.04em;margin-top:2px}
+.s1-node-badge{display:inline-block;padding:2.5px 10px;border-radius:var(--r-pill);background:var(--bg);box-shadow:var(--shadow-inset);font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.s1-node-desc{font-size:9.5px;color:var(--mut);line-height:1.42;max-width:240px}
+.s1-node-desc strong{color:var(--ink)}
+
+/* Connector Arrows */
+.s1-connector{display:flex;flex-direction:column;align-items:center;gap:4px;flex:none}
+.s1-conn-pill{padding:3px 9px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);white-space:nowrap}
+.s1-conn-line{display:flex;align-items:center;gap:4px;color:var(--acc)}
+.s1-conn-line .conn-h{width:44px;height:4px}
+.s1-conn-line .ic{width:14px;height:14px;stroke-width:2.5}
+.s1-conn-sub{font-size:7.5px;font-weight:700;color:var(--mut);letter-spacing:.04em}
+
+/* Photo Circle in Animal Node */
+.photo-circle-lg{width:64px;height:64px;border-radius:50%;box-shadow:var(--shadow-raised-sm);overflow:hidden;border:2.5px solid #ffffff;flex:none;background:var(--bg);position:relative}
+.photo-circle-lg img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Bottom 3 Pillar Cards */
+.s1-cards-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;flex:none}
+.s1-pillar-card{border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:14px 18px;background:var(--bg);display:flex;flex-direction:column;justify-content:space-between;gap:8px;border:1px solid rgba(255,255,255,.8);position:relative;overflow:hidden}
+.s1-pillar-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:.7}
+.s1-pillar-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(185,192,212,.3);padding-bottom:6px}
+.s1-pillar-title{display:flex;align-items:center;gap:8px}
+.s1-pillar-title b{font-size:11px;font-weight:800;color:var(--ink);letter-spacing:.04em;text-transform:uppercase}
+.s1-pillar-card p{font-size:10.5px;color:var(--mut);line-height:1.45}
+.s1-pillar-card p strong{color:var(--ink);font-weight:800}
+.s1-pillar-foot{display:flex;align-items:center;gap:5px;font-size:8px;font-weight:700;color:var(--ink);border-top:1px solid rgba(185,192,212,.3);padding-top:6px}
+.s1-pillar-foot .dot-mini{width:5px;height:5px;border-radius:50%;background:#10b981}
+
+/* Slide 2: Research Foundation & Species Dossiers */
+.s-dossier-wrap{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;height:100%}
+.dossier-grid{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:14px;flex:1;min-height:0}
+.dossier-card{border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:12px 14px;background:var(--bg);display:flex;flex-direction:column;gap:8px;border:1px solid rgba(255,255,255,.75);min-height:0}
+.dossier-card.centerpiece{border:1.5px solid rgba(91,108,249,.35);box-shadow:0 8px 24px rgba(91,108,249,.08), var(--shadow-raised)}
+.dossier-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:6px;border-bottom:1px solid rgba(185,192,212,.3);flex:none}
+.dossier-title{display:flex;align-items:center;gap:8px}
+.dossier-title b{font-size:11px;font-weight:800;color:var(--ink);letter-spacing:.02em;display:block}
+.dossier-title span{font-size:8.5px;color:var(--mut);display:block}
+.dossier-photo-box{width:100%;height:84px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);padding:3px;background:var(--bg);position:relative;flex:none;overflow:hidden}
+.dossier-photo-box img{width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-tile) - 3px);display:block}
+.dossier-photo-tag{position:absolute;bottom:4px;left:4px;right:4px;background:rgba(18,24,38,.82);backdrop-filter:blur(4px);color:#fff;font-size:7px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 5px;border-radius:3px;text-align:center;border:1px solid rgba(255,255,255,.15)}
+
+/* Team disciplines grid */
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;flex:1}
+.team-item{padding:5px 8px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);background:var(--bg);display:flex;align-items:center;gap:6px;font-size:9px;font-weight:700;color:var(--ink)}
+.team-item .dot-mini{width:5px;height:5px;border-radius:50%;background:var(--acc);flex:none}
+
+/* Dossier contents list */
+.dossier-items-grid{display:grid;grid-template-columns:1fr 1fr;gap:3.5px 6px;flex:1}
+.dossier-spec-item{padding:3.5px 7px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);background:var(--bg);font-size:8px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dossier-spec-item .dot-mini{width:4px;height:4px;border-radius:50%;background:#10b981;flex:none}
+.dossier-rule-card{padding:6px 10px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);background:var(--bg);border-left:3px solid var(--acc);display:flex;align-items:center;gap:7px;flex:none}
+.dossier-rule-card p{font-size:8px;color:var(--ink);line-height:1.3}
+.dossier-rule-card strong{color:var(--acc)}
+
+/* SFM tree flow */
+.sfm-tree-wrap{display:flex;flex-direction:column;gap:6px;flex:1;justify-content:center}
+.sfm-hub{padding:6px 10px;border-radius:var(--r-pill);box-shadow:var(--shadow-raised-sm);background:var(--bg);text-align:center;font-size:9.5px;font-weight:800;color:var(--acc);border:1px solid rgba(91,108,249,.3);align-self:center;width:80%}
+.sfm-branch-list{display:flex;flex-direction:column;gap:4px}
+.sfm-branch-item{padding:4px 8px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:6px}
+.sfm-branch-item b{font-size:9px;font-weight:800;color:var(--ink)}
+.sfm-branch-item span{font-size:7.5px;font-weight:700;color:var(--mut)}
+
+/* Dossier bottom banner */
+.dossier-anchor-card{border-radius:var(--r-card);box-shadow:0 6px 20px rgba(91,108,249,.08), var(--shadow-raised);padding:10px 18px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:14px;border:1.5px solid rgba(91,108,249,.3);flex:none}
+.dossier-anchor-left{display:flex;align-items:center;gap:12px;flex:1}
+.dossier-anchor-body{display:flex;flex-direction:column;gap:2px}
+.dossier-anchor-title{font-size:12px;font-weight:900;color:var(--ink);line-height:1.25}
+.dossier-anchor-title strong{color:var(--acc)}
+.dossier-anchor-desc{font-size:9px;color:var(--mut);line-height:1.35}
+
+/* Slide 2 Styles (Now Slide 3) */
+.s2-split{display:grid;grid-template-columns:1.22fr 0.78fr;gap:20px;align-items:center;flex:1;min-height:0}
+.radial-wrap{display:grid;place-items:center}
+.radial-grid{position:relative;width:420px;height:420px}
+.radial-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;box-shadow:var(--shadow-raised);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;background:var(--bg);z-index:2}
+.radial-center .nic{width:50px;height:50px;box-shadow:var(--shadow-inset)}.radial-center .nic .ic{width:24px;height:24px}
+.radial-center b{font-size:11.5px;font-weight:800;color:var(--ink)}
+.radial-center span{font-size:8.5px;color:var(--mut)}
+.radial-node{position:absolute;width:115px;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center}
+.radial-node .nic{width:42px;height:42px}.radial-node .nic .ic{width:20px;height:20px}
+.radial-node b{font-size:9.5px;font-weight:800;color:var(--ink);letter-spacing:.02em}
+.radial-node span{font-size:8px;color:var(--mut)}
+.rn-1{left:50%;top:-10px;transform:translateX(-50%)}
+.rn-2{right:-18px;top:25%;transform:translateY(-50%)}
+.rn-3{right:-18px;bottom:25%;transform:translateY(50%)}
+.rn-4{left:50%;bottom:-10px;transform:translateX(-50%)}
+.rn-5{left:-18px;bottom:25%;transform:translateY(50%)}
+.rn-6{left:-18px;top:25%;transform:translateY(-50%)}
+.radial-line{position:absolute;left:50%;top:50%;width:105px;height:5px;background:var(--line);transform-origin:left center;border-radius:3px;z-index:1}
+.rl-1{transform:rotate(-90deg) translateY(-2.5px)}
+.rl-2{transform:rotate(-30deg) translateY(-2.5px)}
+.rl-3{transform:rotate(30deg) translateY(-2.5px)}
+.rl-4{transform:rotate(90deg) translateY(-2.5px)}
+.rl-5{transform:rotate(150deg) translateY(-2.5px)}
+.rl-6{transform:rotate(210deg) translateY(-2.5px)}
+.s2-photo-panel{border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:14px;background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.s2-photo-frame{height:190px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);padding:4px;background:var(--bg);overflow:hidden}
+.s2-photo-frame img{width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-tile) - 4px);display:block}
+.s2-telemetry-meta{display:flex;flex-direction:column;gap:4px}
+.s2-telemetry-meta b{font-size:11px;font-weight:800;color:var(--ink)}
+.s2-telemetry-meta span{font-size:9.5px;color:var(--mut);line-height:1.4}
+.s2-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.s2-pill{padding:3px 9px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);font-size:8px;font-weight:800;letter-spacing:.06em;color:var(--ink);text-transform:uppercase}
+.s2-pipeline-bar{display:flex;align-items:center;justify-content:center;gap:12px;padding:6px 18px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);font-size:9.5px;font-weight:800;letter-spacing:.06em;color:var(--ink);background:var(--bg)}
+.s2-pipe-step{display:flex;align-items:center;gap:6px}
+.s2-pipe-step .num{width:16px;height:16px;border-radius:50%;background:var(--acc);color:#fff;font-size:8px;display:grid;place-items:center}
+.s2-pipe-arr{color:var(--acc)}
+.callout-pill{padding:9px 20px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);font-size:10.5px;font-weight:700;color:var(--ink);text-align:center;display:flex;align-items:center;gap:10px;justify-content:center}
+.callout-pill .ic{width:15px;height:15px;color:var(--acc)}
+
+/* Slide 3 Styles */
+.s3-system-wrap{display:flex;flex-direction:column;align-items:center;flex:1;justify-content:space-between;padding:2px 0}
+.s3-human-card{width:min(660px, 96%);border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:10px 20px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:16px;border:1px solid rgba(255,255,255,.75)}
+.s3-human-left{display:flex;align-items:center;gap:12px}
+.s3-human-text b{font-size:12.5px;font-weight:800;color:var(--ink);letter-spacing:.02em;display:block}
+.s3-human-text span{font-size:9.5px;color:var(--mut);display:block;margin-top:1px}
+.s3-v-conn{display:flex;flex-direction:column;align-items:center;height:16px;position:relative}
+.s3-v-line{width:2px;height:100%;background:linear-gradient(to bottom, var(--line), var(--acc))}
+.s3-v-arrow{position:absolute;bottom:-3px;color:var(--acc);transform:rotate(90deg);width:11px;height:11px}
+.s3-intent-card{width:min(580px, 92%);border-radius:var(--r-pill);box-shadow:var(--shadow-inset);padding:6px 18px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:12px;border:1.5px solid rgba(91,108,249,.35)}
+.s3-intent-left{display:flex;align-items:center;gap:8px}
+.s3-intent-badge{font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--acc);padding:2px 8px;border-radius:var(--r-pill)}
+.s3-intent-title{font-size:11px;font-weight:800;color:var(--ink);letter-spacing:.04em}
+.s3-intent-flow{display:flex;align-items:center;gap:6px;font-size:9.5px;color:var(--mut);font-weight:600}
+.s3-intent-flow .ic{width:11px;height:11px;color:var(--acc)}
+.s3-mothership-card{width:min(780px, 98%);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(91,108,249,.08), var(--shadow-raised);padding:12px 22px;background:var(--bg);display:flex;flex-direction:column;align-items:center;gap:8px;border:1.5px solid rgba(91,108,249,.4)}
+.s3-mothership-main{display:flex;align-items:center;justify-content:space-between;width:100%;gap:16px}
+.s3-mothership-identity{display:flex;align-items:center;gap:14px}
+.s3-mothership-nic{width:48px;height:48px;border-radius:50%;box-shadow:var(--shadow-inset);display:grid;place-items:center;color:var(--acc);background:var(--bg);flex:none;position:relative}
+.s3-mothership-nic::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1px dashed rgba(91,108,249,.4);animation:spin 24s linear infinite}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.s3-mothership-title b{font-size:14.5px;font-weight:900;letter-spacing:.05em;color:var(--ink);display:block}
+.s3-mothership-title span{font-size:10px;color:var(--mut);display:block;margin-top:1px}
+.s3-telemetry-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;padding-top:4px;border-top:1px solid rgba(185,192,212,.35);width:100%}
+.s3-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);font-size:8.5px;font-weight:700;color:var(--ink);background:var(--bg)}
+.s3-chip .dot-pulse{width:5px;height:5px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981}
+.s3-tree-bus{width:100%;height:22px;display:flex;justify-content:center;align-items:center}
+.s3-tree-svg{width:100%;max-width:1080px;height:22px;overflow:visible}
+.s3-species-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;max-width:1080px}
+.s3-card{border-radius:var(--r-card);box-shadow:var(--shadow-raised-sm);padding:12px 14px;background:var(--bg);display:flex;flex-direction:column;gap:8px;border:1px solid rgba(255,255,255,.8);position:relative;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease}
+.s3-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:.7}
+.s3-card-top{display:flex;align-items:center;justify-content:space-between}
+.s3-card-icon{width:36px;height:36px;border-radius:50%;box-shadow:var(--shadow-raised-sm);display:grid;place-items:center;color:var(--acc);background:var(--bg)}
+.s3-card-icon .ic{width:18px;height:18px}
+.s3-card-domain{font-size:8px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);padding:2px 7px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset)}
+.s3-card-name{font-size:12.5px;font-weight:900;color:var(--ink);letter-spacing:.03em}
+.s3-card-desc{font-size:9.5px;color:var(--mut);line-height:1.38;min-height:26px;margin-top:2px}
+.s3-card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid rgba(185,192,212,.3);font-size:8px;font-weight:700;color:var(--ink)}
+.s3-card-foot .status{display:flex;align-items:center;gap:4px;color:#10b981}
+.s3-card-foot .dot-mini{width:5px;height:5px;border-radius:50%;background:#10b981}
+
+/* Slide 4 Styles */
+.tw-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;flex:1}
+.tw-col{display:flex;flex-direction:column;gap:12px}
+.tw-head{display:flex;align-items:center;gap:12px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.tw-head .nic{width:38px;height:38px}.tw-head .nic .ic{width:19px;height:19px}
+.tw-head b{font-size:13.5px;font-weight:800;color:var(--ink)}
+.tw-head span{font-size:9px;font-weight:800;color:var(--acc);letter-spacing:.08em}
+.tw-flow{display:flex;flex-direction:column;gap:10px;flex:1}
+.tw-node{border-radius:var(--r-tile);box-shadow:var(--shadow-raised-sm);padding:12px 16px;display:flex;align-items:center;gap:14px;background:var(--bg)}
+.tw-node .nic{width:36px;height:36px}.tw-node .nic .ic{width:18px;height:18px}
+.tw-node b{font-size:11.5px;font-weight:800;color:var(--ink);display:block}
+.tw-node span{font-size:10px;color:var(--mut);line-height:1.35}
+.tw-arr{display:flex;justify-content:center}
+.tw-arr .conn{height:14px}
+
+/* Slide 5 Ultra-Premium Grounding & Roadmap */
+.s5-premium-wrap{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;height:100%}
+.s5-top-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;flex:none}
+.s5-tech-card{border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:12px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;border:1px solid rgba(255,255,255,.75)}
+.s5-tech-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid rgba(185,192,212,.3)}
+.s5-tech-title{display:flex;align-items:center;gap:10px}
+.s5-tech-title b{font-size:12px;font-weight:800;color:var(--ink);letter-spacing:.02em;display:block}
+.s5-tech-title span{font-size:9px;color:var(--mut);display:block}
+.s5-tech-body{display:flex;gap:14px;align-items:center}
+.s5-photo-box{width:165px;height:104px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);padding:3px;background:var(--bg);position:relative;flex:none;overflow:hidden}
+.s5-photo-box img{width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-tile) - 3px);display:block}
+.s5-photo-tag{position:absolute;bottom:5px;left:5px;right:5px;background:rgba(18,24,38,.82);backdrop-filter:blur(5px);color:#fff;font-size:7.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border-radius:4px;text-align:center;border:1px solid rgba(255,255,255,.15)}
+.s5-pill-list{display:flex;flex-direction:column;gap:7px;flex:1;min-width:0}
+.s5-item{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);background:var(--bg);gap:8px}
+.s5-item-name{display:flex;align-items:center;gap:8px;min-width:0}
+.s5-item-name b{font-size:10.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s5-status-chip{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;flex:none;padding:2px 7px;border-radius:var(--r-pill)}
+.s5-item.good .s5-status-chip{color:var(--acc);background:rgba(91,108,249,.1);border:1px solid rgba(91,108,249,.25)}
+.s5-item.bad .s5-status-chip{color:#e05252;background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.25)}
+
+/* 5-Phase Roadmap Hero Centerpiece */
+.s5-roadmap-hero{border-radius:var(--r-card);box-shadow:0 8px 24px rgba(91,108,249,.08), var(--shadow-raised);padding:14px 20px;background:var(--bg);display:flex;flex-direction:column;gap:12px;border:1.5px solid rgba(91,108,249,.35);flex:1;min-height:0;justify-content:space-between}
+.s5-rm-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid rgba(185,192,212,.35)}
+.s5-rm-title{display:flex;align-items:center;gap:10px}
+.s5-rm-title b{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);display:block}
+.s5-rm-title span{font-size:9.5px;color:var(--mut);display:block}
+.s5-phases-grid{display:flex;align-items:stretch;justify-content:space-between;gap:8px;flex:1}
+.s5-phase-card{flex:1;border-radius:var(--r-tile);box-shadow:var(--shadow-raised-sm);padding:11px 12px 10px;background:var(--bg);display:flex;flex-direction:column;justify-content:space-between;gap:8px;border:1px solid rgba(255,255,255,.75);position:relative;overflow:hidden;transition:transform .2s ease}
+.s5-phase-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+.s5-phase-card.active{border-color:rgba(91,108,249,.45);box-shadow:0 6px 18px rgba(91,108,249,.14), var(--shadow-raised-sm);transform:translateY(-2px)}
+.s5-phase-card.active::before{background:var(--acc);height:3.5px}
+.s5-phase-badge{display:flex;align-items:center;justify-content:space-between}
+.s5-phase-badge .num{font-size:11px;font-weight:900;color:var(--acc)}
+.s5-phase-badge .phase-tag{font-size:7.5px;font-weight:800;letter-spacing:.08em;color:var(--mut);background:var(--bg);box-shadow:var(--shadow-inset);padding:2px 6px;border-radius:var(--r-pill)}
+.s5-phase-name{font-size:11.5px;font-weight:800;color:var(--ink);line-height:1.25}
+.s5-phase-desc{display:flex;flex-direction:column;gap:3px;font-size:8.5px;color:var(--mut);line-height:1.36}
+.s5-phase-desc p strong{color:var(--ink);font-weight:700}
+.s5-phase-status{display:flex;align-items:center;gap:5px;font-size:8px;font-weight:700;color:var(--ink);padding-top:6px;border-top:1px solid rgba(185,192,212,.3)}
+.s5-phase-status .dot-mini{width:5px;height:5px;border-radius:50%;background:#10b981}
+.s5-phase-arr{color:var(--line);flex:none;align-self:center;display:grid;place-items:center}
+.s5-phase-arr .ic{width:14px;height:14px;stroke-width:2.5}
+
+/* Slide 6 Ultra-Premium Ethics & Defense */
+.s6-premium-wrap{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;height:100%}
+.s6-eth-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;flex:1;min-height:0}
+.s6-card{border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:13px 18px;background:var(--bg);display:flex;flex-direction:column;gap:10px;border:1px solid rgba(255,255,255,.75);min-height:0}
+.s6-card-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid rgba(185,192,212,.3);flex:none}
+.s6-card-title{display:flex;align-items:center;gap:10px}
+.s6-card-title b{font-size:12px;font-weight:800;color:var(--ink);letter-spacing:.02em;display:block}
+.s6-card-title span{font-size:9px;color:var(--mut);display:block}
+.s6-card-list{display:flex;flex-direction:column;gap:8px;flex:1;justify-content:space-between;min-height:0}
+
+/* Principle Tile */
+.eth-tile{padding:8px 12px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);background:var(--bg);display:flex;align-items:flex-start;gap:10px;flex:1}
+.eth-tile-num{width:22px;height:22px;border-radius:50%;box-shadow:var(--shadow-raised-sm);display:grid;place-items:center;font-size:9.5px;font-weight:900;color:var(--acc);flex:none;background:var(--bg);margin-top:1px}
+.eth-tile-content{display:flex;flex-direction:column;gap:2px;flex:1}
+.eth-tile-content b{font-size:11px;font-weight:800;color:var(--ink);line-height:1.25}
+.eth-tile-content span{font-size:9px;color:var(--mut);line-height:1.36}
+.eth-tile-content strong{color:var(--ink);font-weight:700}
+
+/* FAQ Tile */
+.faq-tile{padding:8px 12px;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);background:var(--bg);display:flex;flex-direction:column;gap:4px;flex:1}
+.faq-tile-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.faq-tile-q{font-size:10.5px;font-weight:800;color:var(--ink);line-height:1.25}
+.ans-pill{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;padding:2.5px 8px;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:4px;flex:none}
+.ans-pill.no{color:#e05252;background:rgba(224,82,82,.1);border:1px solid rgba(224,82,82,.25)}
+.ans-pill.yes{color:var(--acc);background:rgba(91,108,249,.1);border:1px solid rgba(91,108,249,.25)}
+.ans-pill .ic{width:9px;height:9px}
+.faq-tile-a{font-size:9px;color:var(--mut);line-height:1.35}
+.faq-tile-a strong{color:var(--ink);font-weight:800}
+
+/* Grand Anchor Hero */
+.ethics-anchor-hero{border-radius:var(--r-card);box-shadow:0 8px 24px rgba(91,108,249,.08), var(--shadow-raised);padding:12px 20px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:18px;border:1.5px solid rgba(91,108,249,.35);flex:none}
+.anchor-left-box{display:flex;align-items:center;gap:14px;flex:1}
+.anchor-crest{width:46px;height:46px;border-radius:50%;box-shadow:var(--shadow-raised-sm);display:grid;place-items:center;color:var(--acc);background:var(--bg);flex:none}
+.anchor-crest .ic{width:24px;height:24px}
+.anchor-body{display:flex;flex-direction:column;gap:2px}
+.anchor-eyebrow{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:5px}
+.anchor-title{font-size:15px;font-weight:900;color:var(--ink);letter-spacing:.04em;line-height:1.2}
+.anchor-desc{font-size:9.5px;color:var(--mut);line-height:1.4;max-width:70ch}
+.anchor-badges{display:flex;flex-direction:column;gap:5px;flex:none}
+.anchor-badges .badge{box-shadow:var(--shadow-inset);font-size:8px;padding:3px 9px}
+
+/* Slide 8 Ultra-Premium Conservation & Vision */
+.s8-premium-wrap{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0;height:100%}
+
+/* Top Operational Pipeline */
+.s8-pipeline{display:flex;align-items:stretch;justify-content:space-between;gap:8px;flex:none}
+.s8-pipe-step{flex:1;border-radius:var(--r-tile);box-shadow:var(--shadow-raised-sm);padding:10px 12px;background:var(--bg);display:flex;flex-direction:column;gap:6px;border:1px solid rgba(255,255,255,.8);position:relative;overflow:hidden;transition:transform .2s ease}
+.s8-pipe-step::before{content:"";position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,transparent,var(--line),transparent)}
+.s8-pipe-step.highlight{border-color:rgba(91,108,249,.4);box-shadow:0 4px 14px rgba(91,108,249,.12), var(--shadow-raised-sm)}
+.s8-pipe-step.highlight::before{background:var(--acc)}
+.s8-step-top{display:flex;align-items:center;justify-content:space-between}
+.s8-step-top .num{font-size:9.5px;font-weight:900;color:var(--acc)}
+.s8-step-top .nic{width:26px;height:26px;box-shadow:var(--shadow-inset)}
+.s8-step-top .nic .ic{width:13px;height:13px}
+.s8-step-name{font-size:10.5px;font-weight:800;color:var(--ink);line-height:1.2}
+.s8-step-desc{font-size:8px;color:var(--mut);line-height:1.35}
+.s8-pipe-arr{color:var(--line);flex:none;align-self:center;display:grid;place-items:center}
+.s8-pipe-arr .ic{width:14px;height:14px;stroke-width:2.5}
+
+/* Bottom Split: Field Photo + Master Synthesis */
+.s8-bottom-split{display:grid;grid-template-columns:1.05fr 1fr;gap:18px;flex:1;min-height:0;align-items:stretch}
+
+/* Left Photo Panel */
+.s8-photo-card{border-radius:var(--r-card);box-shadow:var(--shadow-raised);padding:14px 16px;background:var(--bg);display:flex;flex-direction:column;gap:10px;border:1px solid rgba(255,255,255,.75);min-height:0}
+.s8-photo-head{display:flex;align-items:center;justify-content:space-between;padding-bottom:6px;border-bottom:1px solid rgba(185,192,212,.3);flex:none}
+.s8-photo-head b{font-size:11.5px;font-weight:800;color:var(--ink);letter-spacing:.02em}
+.s8-photo-frame{flex:1;border-radius:var(--r-tile);box-shadow:var(--shadow-inset);padding:3px;background:var(--bg);position:relative;overflow:hidden;min-height:170px}
+.s8-photo-frame img{width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-tile) - 3px);display:block}
+.s8-photo-glass-bar{position:absolute;bottom:6px;left:6px;right:6px;background:rgba(18,24,38,.82);backdrop-filter:blur(5px);color:#fff;padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.s8-glass-title{font-size:8px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.s8-glass-sub{font-size:7px;color:rgba(255,255,255,.8)}
+.s8-photo-metrics{display:flex;align-items:center;justify-content:space-between;gap:6px;flex:none;padding-top:4px}
+.s8-metric-chip{display:inline-flex;align-items:center;gap:5px;padding:3.5px 9px;border-radius:var(--r-pill);box-shadow:var(--shadow-inset);background:var(--bg);font-size:8px;font-weight:700;color:var(--ink);white-space:nowrap}
+.s8-metric-chip .dot-mini{width:5px;height:5px;border-radius:50%;background:#10b981;flex:none}
+
+/* Right Synthesis Column */
+.s8-synthesis-col{display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;justify-content:space-between}
+
+/* Takeaway Card */
+.s8-takeaway-card{border-radius:var(--r-card);box-shadow:0 8px 24px rgba(91,108,249,.08), var(--shadow-raised);padding:14px 18px;background:var(--bg);display:flex;flex-direction:column;gap:8px;border:1.5px solid rgba(91,108,249,.35);flex:1;min-height:0;justify-content:space-between}
+.s8-takeaway-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(185,192,212,.3);padding-bottom:6px;flex:none}
+.s8-takeaway-title{display:flex;align-items:center;gap:7px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)}
+.s8-takeaway-text{font-size:11px;font-weight:700;color:var(--ink);line-height:1.45;padding:2px 0}
+.s8-takeaway-checks{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex:none;border-top:1px solid rgba(185,192,212,.3);padding-top:6px}
+.s8-check-item{display:flex;align-items:center;gap:5px;font-size:8px;font-weight:700;color:var(--mut)}
+.s8-check-item strong{color:var(--ink)}
+
+/* Closing Philosophy Quote Card */
+.s8-quote-card{border-radius:var(--r-card);box-shadow:var(--shadow-pressed);padding:14px 20px;background:var(--bg);display:flex;align-items:center;gap:14px;border:1px solid rgba(255,255,255,.6);flex:none}
+.s8-quote-icon{width:42px;height:42px;border-radius:50%;box-shadow:var(--shadow-raised-sm);display:grid;place-items:center;color:var(--acc);background:var(--bg);flex:none}
+.s8-quote-icon .ic{width:20px;height:20px}
+.s8-quote-body{display:flex;flex-direction:column;gap:3px}
+.s8-quote-body p{font-size:11px;font-weight:600;color:var(--ink);line-height:1.48;font-style:italic}
+.s8-quote-sig{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);display:flex;align-items:center;gap:6px}
+
+/* Founder Prep Drawer */
+.notes-drawer{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120%);width:min(920px, 94vw);border-radius:var(--r-card);box-shadow:0 12px 36px rgba(45,55,75,.2), var(--shadow-raised);background:var(--bg);border:1px solid rgba(255,255,255,.6);padding:16px 22px;z-index:90;transition:transform .3s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;gap:10px}
+.notes-drawer.open{transform:translateX(-50%) translateY(0)}
+.notes-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:8px}
+.notes-head-title{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+.notes-close{cursor:pointer;width:28px;height:28px;border-radius:50%;box-shadow:var(--shadow-raised-sm);display:grid;place-items:center;color:var(--mut);transition:all .2s}
+.notes-close:hover{box-shadow:var(--shadow-inset);color:var(--ink)}
+.notes-grid{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:14px}
+.notes-box{border-radius:var(--r-tile);box-shadow:var(--shadow-inset);padding:10px 14px;background:var(--bg);display:flex;flex-direction:column;gap:4px}
+.notes-label{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+.notes-text{font-size:10px;color:var(--mut);line-height:1.4}
+.notes-text strong{color:var(--ink)}
+
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+body.doc .stage{overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+body.doc .stage::-webkit-scrollbar{width:0;height:0}
+body.doc .frame{position:static;width:100%;height:auto;transform:none !important;display:block}
+body.doc .slide{position:relative;inset:auto;display:none;min-height:calc(100dvh - 78px);padding:22px 18px calc(104px + env(safe-area-inset-bottom));opacity:1;visibility:visible;pointer-events:auto;transition:none}
+body.doc .slide.active{display:flex;animation:fadein .25s ease}
+body.doc .navb{top:auto;bottom:calc(16px + env(safe-area-inset-bottom));transform:none;width:58px;height:58px}
+body.doc .navb.prev{left:50%;margin-left:-72px}
+body.doc .navb.next{right:50%;margin-right:-72px}
+body.doc .edge,body.doc .hint,body.doc .dots{display:none}
+body.doc .brand{font-size:9px;padding:6px 11px}
+body.doc .shead{flex-direction:column;gap:10px}
+body.doc .hbadges{justify-content:flex-start;padding-top:0}
+body.doc .stitle{font-size:20px}
+body.doc .ssub{font-size:11.5px}
+body.doc .tw-grid,body.doc .s2-split,body.doc .s5-top-grid,body.doc .s7-split,body.doc .s6-eth-grid,body.doc .dossier-grid{grid-template-columns:1fr}
+body.doc .s5-tech-body{flex-direction:column;align-items:stretch}
+body.doc .s5-photo-box{width:100%;height:140px}
+body.doc .s5-phases-grid{flex-direction:column;gap:12px}
+body.doc .s5-phase-arr{transform:rotate(90deg)}
+body.doc .ethics-anchor-hero{flex-direction:column;align-items:flex-start;gap:12px}
+body.doc .anchor-left-box{flex-direction:column;align-items:flex-start;gap:10px}
+body.doc .anchor-badges{flex-direction:row;flex-wrap:wrap}
+body.doc .s1-wrap{gap:14px}
+body.doc .s1-flow-row{flex-direction:column;gap:14px}
+body.doc .s1-connector{margin:4px 0}
+body.doc .s1-conn-line .conn-h{width:4px;height:22px}
+body.doc .s1-conn-line .ic{transform:rotate(90deg)}
+body.doc .s1-cards-grid{grid-template-columns:1fr;gap:12px}
+body.doc .radial-grid{width:320px;height:320px}
+body.doc .radial-center{width:100px;height:100px}
+body.doc .radial-node{width:80px}
+body.doc .radial-node b{font-size:9px}
+body.doc .radial-node span{font-size:8px}
+body.doc .radial-line{width:70px}
+body.doc .s3-species-grid{grid-template-columns:1fr}
+body.doc .s3-tree-bus{display:none}
+body.doc .s3-human-card,body.doc .s3-intent-card,body.doc .s3-mothership-card{width:100%}
+body.doc .s3-intent-card{flex-direction:column;align-items:flex-start}
+body.doc .s3-mothership-main{flex-direction:column;align-items:flex-start;gap:8px}
+body.doc .s8-pipeline{flex-direction:column;gap:10px}
+body.doc .s8-pipe-arr{transform:rotate(90deg)}
+body.doc .s8-bottom-split{grid-template-columns:1fr}
+body.doc .s8-photo-frame{height:180px}
+body.doc .s8-quote-card{flex-direction:column;align-items:center;text-align:center}
+body.doc .roadmap-track{flex-direction:column;align-items:stretch}
+body.doc .rm-arr{transform:rotate(90deg);align-self:center}
+body.doc .s5-photo-row{flex-direction:column;align-items:flex-start}
+body.doc .s5-photo-frame{width:100%;height:140px}
+body.doc .s2-photo-frame,body.doc .s7-photo-frame{height:180px}
+
+@media print{
+  @page{size:1280px 720px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{overflow:visible;height:auto;display:block}
+  .hud,.navb,.edge,.hint{display:none !important}
+  .stage{overflow:visible;height:auto}
+  .frame{position:static;width:auto;height:auto;transform:none !important;display:block}
+  .slide{position:relative;display:flex !important;opacity:1 !important;visibility:visible !important;pointer-events:auto;width:1280px;height:720px;margin:0 auto;page-break-after:always;break-after:page;animation:none !important}
+  .slide:last-child{page-break-after:auto;break-after:auto}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L19.5 6.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-chl" viewBox="0 0 24 24"><path d="M14.5 5.5 8 12l6.5 6.5"/></symbol>
+  <symbol id="i-chr" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9.5V4h5.5M20 9.5V4h-5.5M4 14.5V20h5.5M20 14.5V20h-5.5"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8V3.5h10V8"/><rect x="4" y="8" width="16" height="8" rx="1.8"/><path d="M7 13.5h10v7H7z"/><path d="M16.8 11h.01"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.6 2.8 19.8h18.4L12 3.6z"/><path d="M12 9.5v4.4"/><path d="M12 17.2h.01"/></symbol>
+  <symbol id="i-paw" viewBox="0 0 24 24"><path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/><circle cx="8" cy="9" r="1.5"/><circle cx="16" cy="9" r="1.5"/><circle cx="12" cy="6" r="1.5"/><path d="M12 15c-2.2 0-4 1.3-4 3v1h8v-1c0-1.7-1.8-3-4-3z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 4.5 7v6.2c0 5 3.3 9.4 7.5 10.3 4.2-.9 7.5-5.3 7.5-10.3V7L12 3.5z"/></symbol>
+  <symbol id="i-brain" viewBox="0 0 24 24"><path d="M9.5 4a3.5 3.5 0 0 0-3.5 3.5c0 .4.07.8.2 1.15A3.5 3.5 0 0 0 4 12a3.5 3.5 0 0 0 2 3.15c-.1.35-.15.7-.15 1.1A3.5 3.5 0 0 0 9.35 19.8 4 4 0 0 0 12 21a4 4 0 0 0 2.65-1.2A3.5 3.5 0 0 0 18.15 16.25c0-.4-.05-.75-.15-1.1A3.5 3.5 0 0 0 20 12a3.5 3.5 0 0 0-2.2-3.35c.13-.35.2-.75.2-1.15A3.5 3.5 0 0 0 14.5 4c-1.1 0-2.1.5-2.5 1.3A3.2 3.2 0 0 0 9.5 4z"/><path d="M12 5v16"/></symbol>
+  <symbol id="i-bridge" viewBox="0 0 24 24"><path d="M3 18V9l9-5 9 5v9"/><path d="M3 14h18"/><path d="M7 14v4"/><path d="M17 14v4"/><path d="M12 9v9"/></symbol>
+  <symbol id="i-human" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a6.5 6.5 0 0 1 13 0"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></symbol>
+  <symbol id="i-translate" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></symbol>
+  <symbol id="i-imu" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="3" y1="12" x2="7" y2="12"/><line x1="17" y1="12" x2="21" y2="12"/></symbol>
+  <symbol id="i-hr" viewBox="0 0 24 24"><path d="M3 12h3.5l2.5-6 4 12 2.5-6H21"/></symbol>
+  <symbol id="i-thermal" viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-mothership" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="9" ry="4.5"/><path d="M12 3v4.5M12 16.5V21"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-rat" viewBox="0 0 24 24"><ellipse cx="10" cy="14" rx="7" ry="5"/><circle cx="17" cy="12" r="2.5"/><path d="M19.5 12c1.5-.5 2.5-1.5 2.5-2.5"/><path d="M3 15c-1 0-2-1-2-3s2-4 4-4"/><circle cx="15" cy="10" r="1.5"/></symbol>
+  <symbol id="i-dog" viewBox="0 0 24 24"><path d="M10 5.5C8 5.5 6 7 6 9v3l-2 1v3l2-1v4h3v-3h6v3h3v-5l2-3V9c0-2-2-3.5-4-3.5h-7z"/><circle cx="16" cy="9" r="1"/></symbol>
+  <symbol id="i-crow" viewBox="0 0 24 24"><path d="M2 16c3-1 6-4 8-8l4 2 7-4-3 6-5 2-3 5-5-1z"/><circle cx="16" cy="8" r="1"/></symbol>
+  <symbol id="i-dolphin" viewBox="0 0 24 24"><path d="M2 14c4 0 7-2 9-5 3 2 7 3 11 1-3 4-7 6-11 5l-4 3 1-3c-2-.3-4-.6-6-1z"/><path d="M13 9l-2-4-2 3"/></symbol>
+  <symbol id="i-quote" viewBox="0 0 24 24"><path d="M10 11H6a3 3 0 0 1 3-3V6a5 5 0 0 0-5 5v7h6v-7zm10 0h-4a3 3 0 0 1 3-3V6a5 5 0 0 0-5 5v7h6v-7z"/></symbol>
+</svg>
+
+<header class="hud" role="banner">
+  <div class="ptrack" aria-hidden="true"><div class="pfill" id="pfill"></div></div>
+  <div class="hudrow">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <span>PROJECT AEGIS</span>
+      <span style="opacity:.5">|</span>
+      <span style="font-weight:600;letter-spacing:.04em">DECODING INSTINCT · ENCODING INTENT</span>
+    </div>
+    <div class="dots" id="dots" role="tablist" aria-label="Slide selector">
+      <button type="button" class="ndot active" data-target="0" aria-label="Slide 1: What is AEGIS?"></button>
+      <button type="button" class="ndot" data-target="1" aria-label="Slide 2: Where does its intelligence come from?"></button>
+      <button type="button" class="ndot" data-target="2" aria-label="Slide 3: How does it observe animals?"></button>
+      <button type="button" class="ndot" data-target="3" aria-label="Slide 4: How is the system organized?"></button>
+      <button type="button" class="ndot" data-target="4" aria-label="Slide 5: What is possible today vs tomorrow?"></button>
+      <button type="button" class="ndot" data-target="5" aria-label="Slide 6: How do we realistically build it?"></button>
+      <button type="button" class="ndot" data-target="6" aria-label="Slide 7: How do we keep it ethical?"></button>
+      <button type="button" class="ndot" data-target="7" aria-label="Slide 8: Why does this future matter?"></button>
+    </div>
+    <div class="hud-actions">
+      <button type="button" class="icobtn" id="notesbtn" title="Presenter Notes (N)" aria-label="Toggle founder notes"><svg class="ic" style="width:16px;height:16px"><use href="#i-brain"/></svg></button>
+      <button type="button" class="icobtn" id="fsbtn" title="Full screen (F)" aria-label="Toggle full screen"><svg class="ic" style="width:15px;height:15px"><use href="#i-expand"/></svg></button>
+      <button type="button" class="icobtn" id="printbtn" title="Print deck (P)" aria-label="Print slide deck"><svg class="ic" style="width:15px;height:15px"><use href="#i-print"/></svg></button>
+      <span class="counter" id="counter" aria-live="polite">1 / 8</span>
+    </div>
+  </div>
+</header>
+
+<main class="stage" id="stage" aria-roledescription="carousel" aria-label="Slide deck: Project AEGIS">
+<div class="frame" id="frame">
+
+  <!-- SLIDE 1: What is AEGIS? -->
+  <section class="slide active" role="group" aria-roledescription="slide" aria-label="1 of 8 — What is AEGIS?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: WHAT IS AEGIS?</div>
+        <h2 class="stitle">DECODING INSTINCT · ENCODING INTENT</h2>
+        <p class="ssub">Project AEGIS: AI-Driven Interspecies Communication Framework &amp; Cooperative Intelligence</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag"><svg class="ic"><use href="#i-shield"/></svg>COMMUNICATION BRIDGE, NOT CONTROL</span>
+        <span class="tag"><svg class="ic"><use href="#i-loop"/></svg>PARTNERSHIP WITH NATURE</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="s1-wrap">
+        <!-- Top: Architecture Hero Card -->
+        <div class="s1-arch-hero">
+          <div class="s1-arch-head">
+            <div class="s1-arch-title">
+              <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-bridge"/></svg></span>
+              <b>Interspecies Cooperation Architecture</b>
+            </div>
+            <span class="badge b-ver"><span class="dot" style="background:var(--acc)"></span>3-TIER OPERATIONAL FLOW</span>
+          </div>
+
+          <div class="s1-flow-row" role="img" aria-label="Core Architecture: Human manual operator to AEGIS Bridge to Animal natural instinct and agency">
+            <!-- Node 1: Human -->
+            <div class="s1-node">
+              <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-human"/></svg></span>
+              <div class="s1-node-title">HUMAN</div>
+              <span class="s1-node-badge">Manual Operator</span>
+              <p class="s1-node-desc">Sets high-level mission objective (search, rescue, conservation); <strong>always retains sole operational authority</strong>.</p>
+            </div>
+
+            <!-- Connector 1 -->
+            <div class="s1-connector" aria-hidden="true">
+              <span class="s1-conn-pill">Human Sets Goal</span>
+              <div class="s1-conn-line">
+                <span class="conn-h"></span>
+                <svg class="ic"><use href="#i-arrow"/></svg>
+              </div>
+              <span class="s1-conn-sub">Intent &amp; Directives</span>
+            </div>
+
+            <!-- Node 2: AEGIS Bridge -->
+            <div class="s1-node core-bridge">
+              <span class="nic accent-glow" aria-hidden="true"><svg class="ic"><use href="#i-bridge"/></svg></span>
+              <div class="s1-node-title">AEGIS BRIDGE</div>
+              <span class="s1-node-badge" style="color:var(--acc)">Multimodal AI Foundation</span>
+              <p class="s1-node-desc"><strong>Observes, interprets &amp; translates</strong>: Human intention ↔ Observable biological behavioral patterns.</p>
+            </div>
+
+            <!-- Connector 2 -->
+            <div class="s1-connector" aria-hidden="true">
+              <span class="s1-conn-pill">Interprets Patterns</span>
+              <div class="s1-conn-line">
+                <span class="conn-h"></span>
+                <svg class="ic"><use href="#i-arrow"/></svg>
+              </div>
+              <span class="s1-conn-sub">Natural Response Cues</span>
+            </div>
+
+            <!-- Node 3: Working Animal Partner -->
+            <div class="s1-node">
+              <div class="photo-circle-lg" aria-hidden="true">
+                <img src="assets/sar_dog_field.jpg" alt="Search and rescue working canine partner in field harness">
+              </div>
+              <div class="s1-node-title">ANIMAL PARTNER</div>
+              <span class="s1-node-badge">Natural Instinct &amp; Agency</span>
+              <p class="s1-node-desc">Never modified; operates via natural instincts: <strong>retains complete biological free will &amp; agency</strong>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom: 3 Pillar Cards (Vision, Philosophy, Core Takeaway) -->
+        <div class="s1-cards-grid">
+          <!-- Pillar 1 -->
+          <div class="s1-pillar-card">
+            <div class="s1-pillar-head">
+              <div class="s1-pillar-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>
+                <b>The Vision</b>
+              </div>
+              <span class="badge b-ver">FOUNDATION</span>
+            </div>
+            <p><strong>World's first AI-powered interspecies framework</strong> to help humans understand and collaborate with intelligent working species while preserving natural agency.</p>
+            <div class="s1-pillar-foot">
+              <span class="dot-mini"></span><span>Non-Invasive · Global Interspecies Framework</span>
+            </div>
+          </div>
+
+          <!-- Pillar 2 -->
+          <div class="s1-pillar-card">
+            <div class="s1-pillar-head">
+              <div class="s1-pillar-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-loop"/></svg></span>
+                <b>Core Philosophy</b>
+              </div>
+              <span class="badge b-ver">PARTNERSHIP</span>
+            </div>
+            <p><strong>Humans shouldn't replace nature's evolutionary intelligence—we should learn to communicate with it.</strong> Not controlling animals, but building an intelligent bridge.</p>
+            <div class="s1-pillar-foot">
+              <span class="dot-mini"></span><span>Biological Agency · No Synthetic Replacement</span>
+            </div>
+          </div>
+
+          <!-- Pillar 3 -->
+          <div class="s1-pillar-card">
+            <div class="s1-pillar-head">
+              <div class="s1-pillar-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-translate"/></svg></span>
+                <b>The Core Takeaway</b>
+              </div>
+              <span class="badge b-ver">TRANSLATION</span>
+            </div>
+            <p><strong>Human sets the goal. AEGIS interprets. Animal responds naturally.</strong> Translating biological patterns through multimodal AI—never mind reading or involuntary control.</p>
+            <div class="s1-pillar-foot">
+              <span class="dot-mini"></span><span>Translation Bridge · Zero Neural Coercion</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Judge Defense: Is this mind reading? No. It interprets behavioral patterns using multiple biological signals.</div>
+      <span class="pageno">SLIDE 01 / 08</span>
+    </footer>
+  </section>
+
+  <!-- SLIDE 2: Where does its intelligence come from? -->
+  <section class="slide" role="group" aria-roledescription="slide" aria-label="2 of 8 — Where does its intelligence come from?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: WHERE DOES ITS INTELLIGENCE COME FROM?</div>
+        <h2 class="stitle">Research Foundation &amp; Species Dossiers</h2>
+        <p class="ssub">"Before AI understands a species, science must understand it first." AEGIS begins with research—building a standardized biological knowledge base before any AI model is trained.</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag"><svg class="ic"><use href="#i-shield"/></svg>RESEARCH FIRST</span>
+        <span class="tag">SPECIES DOSSIERS</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="s-dossier-wrap">
+        <div class="dossier-grid">
+          <!-- Phase 1: Multidisciplinary Team -->
+          <div class="dossier-card">
+            <div class="dossier-head">
+              <div class="dossier-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-human"/></svg></span>
+                <div>
+                  <b>PHASE 1: SCIENCE TEAM</b>
+                  <span>Human Expertise Before AI Training</span>
+                </div>
+              </div>
+              <span class="badge b-ver">6 DISCIPLINES</span>
+            </div>
+            <div class="dossier-photo-box">
+              <img src="assets/species_dossier_research.jpg" alt="Multidisciplinary research team collaborating in laboratory">
+              <span class="dossier-photo-tag">Cross-Disciplinary R&amp;D</span>
+            </div>
+            <div class="team-grid">
+              <div class="team-item"><span class="dot-mini"></span>Neuroscientists</div>
+              <div class="team-item"><span class="dot-mini"></span>Ethologists</div>
+              <div class="team-item"><span class="dot-mini"></span>Veterinarians</div>
+              <div class="team-item"><span class="dot-mini"></span>Wildlife Biologists</div>
+              <div class="team-item"><span class="dot-mini"></span>AI Engineers</div>
+              <div class="team-item"><span class="dot-mini"></span>Signal Processing</div>
+            </div>
+            <p style="font-size:8px;color:var(--mut);line-height:1.35;border-top:1px solid rgba(185,192,212,.3);padding-top:4px">
+              Specialists establish standardized observation protocols <strong>before any algorithm is trained</strong>.
+            </p>
+          </div>
+
+          <!-- Phase 2: Species Dossier (Centerpiece) -->
+          <div class="dossier-card centerpiece">
+            <div class="dossier-head">
+              <div class="dossier-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-paw"/></svg></span>
+                <div>
+                  <b>PHASE 2: SPECIES DOSSIER</b>
+                  <span>Synchronized Behavioral Corpus</span>
+                </div>
+              </div>
+              <span class="badge b-ver">GROUND TRUTH</span>
+            </div>
+            <div class="dossier-photo-box" style="background:#ffffff">
+              <img src="assets/esp_bio_logger_benchmark.jpg" alt="Bio-logger Ethogram Benchmark (BEBE) showing Canine and Corvid motion telemetry alongside animal photos" style="object-fit:contain;padding:2px 4px 14px">
+              <span class="dossier-photo-tag" style="background:rgba(18,24,38,.85);font-size:7px;letter-spacing:.05em;bottom:2px;left:50%;transform:translateX(-50%);width:auto;white-space:nowrap;padding:1.5px 8px">Earth Species Project · Tri-Axial Bio-Logging Benchmark</span>
+            </div>
+            <div class="dossier-items-grid">
+              <div class="dossier-spec-item"><span class="dot-mini"></span>Vocalization Patterns</div>
+              <div class="dossier-spec-item"><span class="dot-mini"></span>Posture &amp; Gestures</div>
+              <div class="dossier-spec-item"><span class="dot-mini"></span>Movement &amp; Trajectory</div>
+              <div class="dossier-spec-item"><span class="dot-mini"></span>Heart-Rate Changes</div>
+              <div class="dossier-spec-item"><span class="dot-mini"></span>Environmental Context</div>
+              <div class="dossier-spec-item"><span class="dot-mini"></span>Social Interactions</div>
+              <div class="dossier-spec-item" style="grid-column:1/-1"><span class="dot-mini"></span>Neural Telemetry (Where Ethically Appropriate)</div>
+            </div>
+            <div class="dossier-rule-card">
+              <span class="mini xs acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>
+              <p><strong>Strict Principle:</strong> The AI learns from verified behavioral evidence—<strong>never subjective assumptions about emotions</strong>.</p>
+            </div>
+          </div>
+
+          <!-- Phase 3: Training SFMs -->
+          <div class="dossier-card">
+            <div class="dossier-head">
+              <div class="dossier-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-brain"/></svg></span>
+                <div>
+                  <b>PHASE 3: DOMAIN SFMs</b>
+                  <span>Species Foundation Models</span>
+                </div>
+              </div>
+              <span class="badge b-ver">SPECIALIST MODELS</span>
+            </div>
+            <div class="sfm-tree-wrap">
+              <div class="sfm-hub">Structured Species Dossier</div>
+              <div style="text-align:center;color:var(--acc);font-size:10px;line-height:1">↓</div>
+              <div class="sfm-branch-list">
+                <div class="sfm-branch-item">
+                  <b>DOG SFM</b>
+                  <span>Canine Olfactory &amp; Posture</span>
+                </div>
+                <div class="sfm-branch-item">
+                  <b>CROW SFM</b>
+                  <span>Corvid Spatial Tool Logic</span>
+                </div>
+                <div class="sfm-branch-item">
+                  <b>RAT SFM</b>
+                  <span>Rodent Ultrasonic Telemetry</span>
+                </div>
+                <div class="sfm-branch-item">
+                  <b>DOLPHIN SFM</b>
+                  <span>Marine Echolocation Cues</span>
+                </div>
+                <div class="sfm-branch-item" style="opacity:.75">
+                  <b>MORE SFMs...</b>
+                  <span>Scalable Species Taxonomy</span>
+                </div>
+              </div>
+            </div>
+            <p style="font-size:8px;color:var(--mut);line-height:1.35;border-top:1px solid rgba(185,192,212,.3);padding-top:4px">
+              Each model becomes an <strong>expert in one biological communication system</strong>—zero monolithic hallucination.
+            </p>
+          </div>
+        </div>
+
+        <!-- Grand Bottom Anchor: The Scientific Formula -->
+        <div class="dossier-anchor-card">
+          <div class="dossier-anchor-left">
+            <div class="mini acc" style="width:34px;height:34px"><svg class="ic" style="width:18px;height:18px"><use href="#i-bridge"/></svg></div>
+            <div class="dossier-anchor-body">
+              <div style="font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--acc)">THE AEGIS SCIENTIFIC FORMULA</div>
+              <div class="dossier-anchor-title">"Research creates the dossier. The dossier trains the SFM. The SFM powers AEGIS."</div>
+              <p class="dossier-anchor-desc">Traditional training teaches individual animals. AEGIS builds species-level scientific understanding, making future interspecies communication scalable, consistent, and research-driven.</p>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex:none">
+            <span class="badge b-ver"><svg class="ic"><use href="#i-check"/></svg>RESEARCH FIRST</span>
+            <span class="badge b-ver"><svg class="ic"><use href="#i-check"/></svg>SCALABLE TAXONOMY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Psychological Goal: Judges immediately recognize: "AI is the result of rigorous biological research, not the starting point."</div>
+      <span class="pageno">SLIDE 02 / 08</span>
+    </footer>
+  </section>
+
+  <!-- SLIDE 3: How does it observe animals? -->
+  <section class="slide" role="group" aria-roledescription="slide" aria-label="3 of 8 — How does it observe animals?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: HOW DOES IT OBSERVE ANIMALS?</div>
+        <h2 class="stitle">Multimodal Biological Sensing</h2>
+        <p class="ssub">"One signal never tells the whole story." AI recognizes complex multi-sensor patterns across large behavioral datasets.</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag"><svg class="ic"><use href="#i-warn"/></svg>REJECTING SINGLE-SIGNAL FALLACY</span>
+        <span class="tag">PATTERN FUSION TELEMETRY</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="s2-split">
+        <!-- Left: Radial Multimodal Fusion Diagram -->
+        <div class="radial-wrap">
+          <div class="radial-grid" role="img" aria-label="Radial diagram showing 6 biological sensors feeding into a central Multimodal AI core">
+            <div class="radial-line rl-1" aria-hidden="true"></div>
+            <div class="radial-line rl-2" aria-hidden="true"></div>
+            <div class="radial-line rl-3" aria-hidden="true"></div>
+            <div class="radial-line rl-4" aria-hidden="true"></div>
+            <div class="radial-line rl-5" aria-hidden="true"></div>
+            <div class="radial-line rl-6" aria-hidden="true"></div>
+
+            <div class="radial-center">
+              <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-brain"/></svg></span>
+              <b>MULTIMODAL AI</b>
+              <span>Pattern Fusion</span>
+            </div>
+
+            <div class="radial-node rn-1"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-mic"/></svg></span><b>VOCALIZATIONS</b><span>Communication</span></div>
+            <div class="radial-node rn-2"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-imu"/></svg></span><b>POSTURE</b><span>Behavioral Cues</span></div>
+            <div class="radial-node rn-3"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-hr"/></svg></span><b>HEART RATE</b><span>Physiological State</span></div>
+            <div class="radial-node rn-4"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-thermal"/></svg></span><b>TEMPERATURE</b><span>Physical Condition</span></div>
+            <div class="radial-node rn-5"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-eye"/></svg></span><b>MOVEMENT</b><span>Navigation</span></div>
+            <div class="radial-node rn-6"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-brain"/></svg></span><b>NEURAL ACTIVITY</b><span>Research Input</span></div>
+          </div>
+        </div>
+
+        <!-- Right: Real Empirical Research Visual Card -->
+        <div class="s2-photo-panel">
+          <div class="seclabel"><span class="dot" aria-hidden="true"></span>Empirical Laboratory Telemetry</div>
+          <div class="s2-photo-frame">
+            <img src="assets/thermal_animal_sensing.jpg" alt="Thermal infrared imaging of animal alongside bioacoustics frequency spectrogram data">
+          </div>
+          <div class="s2-telemetry-meta">
+            <b>Synchronized Thermal &amp; Bioacoustic Streams</b>
+            <span>Empirical laboratory setup capturing thermal physiology gradients synchronized with ultrasonic bioacoustic waveforms.</span>
+            <div class="s2-pills">
+              <span class="s2-pill">FLIR Thermography</span>
+              <span class="s2-pill">Bioacoustic FFT</span>
+              <span class="s2-pill">Cross-Sensor Fusion</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Step Visual Progression -->
+      <div class="s2-pipeline-bar">
+        <div class="s2-pipe-step"><span class="num">01</span><span>Multiple Sensor Inputs</span></div>
+        <span class="s2-pipe-arr"><svg class="ic" style="width:12px;height:12px"><use href="#i-arrow"/></svg></span>
+        <div class="s2-pipe-step"><span class="num">02</span><span>Multimodal Pattern Fusion</span></div>
+        <span class="s2-pipe-arr"><svg class="ic" style="width:12px;height:12px"><use href="#i-arrow"/></svg></span>
+        <div class="s2-pipe-step"><span class="num">03</span><span>Behavioral Interpretation</span></div>
+      </div>
+
+      <div class="callout-pill"><svg class="ic"><use href="#i-warn"/></svg>Engineering Principle: Never assume "warm body = angry" or "bark = excited". <strong>One signal never tells the whole story—AI recognizes complex patterns across multi-modal streams.</strong></div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Core Logic: Rather than asking "What does this bark mean?", AEGIS asks: "What story do all signals tell together?"</div>
+      <span class="pageno">SLIDE 03 / 08</span>
+    </footer>
+  </section>
+
+  <!-- SLIDE 4: How is the system organized? -->
+  <section class="slide" role="group" aria-roledescription="slide" aria-label="4 of 8 — How is the system organized?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: HOW IS THE SYSTEM ORGANIZED?</div>
+        <h2 class="stitle">The Mothership &amp; Species Foundation Models</h2>
+        <p class="ssub">One coordinator. Many specialists. Instead of one fragile monolithic model, each species receives its own foundation model coordinated by a central general.</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag"><svg class="ic"><use href="#i-mothership"/></svg>MoE COORDINATOR</span>
+        <span class="tag">SPECIES FOUNDATION MODELS (SFM)</span>
+        <span class="tag">HUMAN-IN-THE-LOOP</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="s3-system-wrap">
+        <!-- Tier 1: Human Command Console -->
+        <div class="s3-human-card">
+          <div class="s3-human-left">
+            <span class="nic sm" aria-hidden="true"><svg class="ic"><use href="#i-human"/></svg></span>
+            <div class="s3-human-text">
+              <b>HUMAN OPERATOR</b>
+              <span>Mission Commander · Strategic Goal Formulation · Search &amp; Rescue Directives</span>
+            </div>
+          </div>
+          <span class="badge b-ver"><svg class="ic"><use href="#i-shield"/></svg>SOLE DECISION AUTHORITY</span>
+        </div>
+
+        <!-- Vertical Connector 1 -->
+        <div class="s3-v-conn" aria-hidden="true">
+          <div class="s3-v-line"></div>
+          <svg class="s3-v-arrow ic"><use href="#i-arrow"/></svg>
+        </div>
+
+        <!-- Tier 2: Intent Interpreter Bridge -->
+        <div class="s3-intent-card">
+          <div class="s3-intent-left">
+            <span class="s3-intent-badge">SEMANTIC LAYER</span>
+            <b class="s3-intent-title">INTENT INTERPRETER</b>
+          </div>
+          <div class="s3-intent-flow">
+            <span>Natural Language Goal</span>
+            <svg class="ic"><use href="#i-arrow"/></svg>
+            <span style="color:var(--acc);font-weight:800">Species Behavioral Directives</span>
+          </div>
+        </div>
+
+        <!-- Vertical Connector 2 -->
+        <div class="s3-v-conn" aria-hidden="true">
+          <div class="s3-v-line"></div>
+          <svg class="s3-v-arrow ic"><use href="#i-arrow"/></svg>
+        </div>
+
+        <!-- Tier 3: The Mothership Hero Hub -->
+        <div class="s3-mothership-card">
+          <div class="s3-mothership-main">
+            <div class="s3-mothership-identity">
+              <div class="s3-mothership-nic" aria-hidden="true">
+                <svg class="ic" style="width:24px;height:24px"><use href="#i-mothership"/></svg>
+              </div>
+              <div class="s3-mothership-title">
+                <b>THE MOTHERSHIP</b>
+                <span>Mixture-of-Experts (MoE) Core Orchestrator · Multi-Species Network Bus</span>
+              </div>
+            </div>
+            <span class="tag" style="padding:4px 12px;font-size:8.5px"><span class="dot" style="background:#10b981"></span>ACTIVE ORCHESTRATOR</span>
+          </div>
+          <div class="s3-telemetry-chips">
+            <span class="s3-chip"><span class="dot-pulse"></span>Species ID &amp; Dynamic Router</span>
+            <span class="s3-chip"><span class="dot-pulse"></span>Cross-Modal Feature Translation</span>
+            <span class="s3-chip"><span class="dot-pulse"></span>Zero-Involuntary-Coercion Protocol</span>
+            <span class="s3-chip"><span class="dot-pulse"></span>Telemetry Roundtrip &lt;15ms</span>
+          </div>
+        </div>
+
+        <!-- Tier 4: Distribution Bus SVG -->
+        <div class="s3-tree-bus" aria-hidden="true">
+          <svg class="s3-tree-svg" viewBox="0 0 1000 22" preserveAspectRatio="none">
+            <path d="M 500 0 L 500 11 M 125 11 L 875 11 M 125 11 L 125 22 M 375 11 L 375 22 M 625 11 L 625 22 M 875 11 L 875 22" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" opacity="0.65"/>
+            <circle cx="500" cy="11" r="3.5" fill="var(--acc)"/>
+            <circle cx="125" cy="11" r="3" fill="var(--acc)"/>
+            <circle cx="375" cy="11" r="3" fill="var(--acc)"/>
+            <circle cx="625" cy="11" r="3" fill="var(--acc)"/>
+            <circle cx="875" cy="11" r="3" fill="var(--acc)"/>
+            <path d="M 121 17 L 125 22 L 129 17" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 371 17 L 375 22 L 379 17" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 621 17 L 625 22 L 629 17" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M 871 17 L 875 22 L 879 17" fill="none" stroke="var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <!-- Tier 5: 4 Species Foundation Model Cards -->
+        <div class="s3-species-grid">
+          <!-- Rat SFM -->
+          <div class="s3-card">
+            <div class="s3-card-top">
+              <div class="s3-card-icon"><svg class="ic"><use href="#i-rat"/></svg></div>
+              <span class="s3-card-domain">TinyML Edge</span>
+            </div>
+            <div>
+              <div class="s3-card-name">RAT SFM</div>
+              <p class="s3-card-desc">High-sensitivity olfactory telemetry &amp; subterranean structural navigation.</p>
+            </div>
+            <div class="s3-card-foot">
+              <span>8-bit Quantized</span>
+              <span class="status"><span class="dot-mini"></span>Lab Validated</span>
+            </div>
+          </div>
+
+          <!-- Dog SFM -->
+          <div class="s3-card" style="border-color:rgba(91,108,249,0.35)">
+            <div class="s3-card-top">
+              <div class="s3-card-icon" style="color:var(--acc)"><svg class="ic"><use href="#i-dog"/></svg></div>
+              <span class="s3-card-domain" style="color:var(--acc);box-shadow:var(--shadow-raised-sm)">Canine Ethology</span>
+            </div>
+            <div>
+              <div class="s3-card-name">DOG SFM</div>
+              <p class="s3-card-desc">Working search &amp; rescue ethology, micro-posture &amp; scent alert tracking.</p>
+            </div>
+            <div class="s3-card-foot">
+              <span>IMU + Bioacoustics</span>
+              <span class="status"><span class="dot-mini"></span>Field Deployed</span>
+            </div>
+          </div>
+
+          <!-- Crow SFM -->
+          <div class="s3-card">
+            <div class="s3-card-top">
+              <div class="s3-card-icon"><svg class="ic"><use href="#i-crow"/></svg></div>
+              <span class="s3-card-domain">Avian Cognition</span>
+            </div>
+            <div>
+              <div class="s3-card-name">CROW SFM</div>
+              <p class="s3-card-desc">Aerial vantage survey, corvid spatial geometry &amp; causal tool reasoning.</p>
+            </div>
+            <div class="s3-card-foot">
+              <span>Spatial Vision</span>
+              <span class="status"><span class="dot-mini"></span>Ethology Active</span>
+            </div>
+          </div>
+
+          <!-- Dolphin SFM -->
+          <div class="s3-card">
+            <div class="s3-card-top">
+              <div class="s3-card-icon"><svg class="ic"><use href="#i-dolphin"/></svg></div>
+              <span class="s3-card-domain">Marine Biosonar</span>
+            </div>
+            <div>
+              <div class="s3-card-name">DOLPHIN SFM</div>
+              <p class="s3-card-desc">Sub-surface echolocation acoustic arrays, whistle syntax &amp; maritime rescue.</p>
+            </div>
+            <div class="s3-card-foot">
+              <span>Hydrophone 150kHz</span>
+              <span class="status"><span class="dot-mini"></span>Research Track</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Psychological Anchor: One central coordinator. Multiple species specialists. Zero monolithic hallucination.</div>
+      <span class="pageno">SLIDE 04 / 08</span>
+    </footer>
+  </section>
+
+  <!-- SLIDE 5: What is possible today vs tomorrow? -->
+  <section class="slide" role="group" aria-roledescription="slide" aria-label="5 of 8 — What is possible today vs tomorrow?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: WHAT IS POSSIBLE TODAY VS TOMORROW?</div>
+        <h2 class="stitle">Decoding Today vs. Long-Term Research Direction</h2>
+        <p class="ssub">Separating near-term empirical evidence from long-term research horizons to protect scientific credibility.</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag"><svg class="ic"><use href="#i-translate"/></svg>DECODING: EVIDENCE (TODAY)</span>
+        <span class="tag"><svg class="ic"><use href="#i-loop"/></svg>ENCODING: ASPIRATION (RESEARCH)</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="tw-grid">
+        <!-- Left: Evidence / Today -->
+        <div class="tw-col">
+          <div class="tw-head">
+            <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-translate"/></svg></span>
+            <div><b>DECODING TODAY</b><span>CURRENT CAPABILITY · EMPIRICAL EVIDENCE</span></div>
+          </div>
+          <div class="tw-flow">
+            <div class="tw-node"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-paw"/></svg></span><div><b>Behavioral Pattern Recognition</b><span>Canine repeatedly alerts near single coordinate through scent posture</span></div></div>
+            <div class="tw-arr" aria-hidden="true"><div class="conn"></div></div>
+            <div class="tw-node"><span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-brain"/></svg></span><div><b>Statistical Signal Interpretation</b><span>Multimodal sensor fusion across telemetry streams &amp; acoustic classifiers</span></div></div>
+            <div class="tw-arr" aria-hidden="true"><div class="conn"></div></div>
+            <div class="tw-node"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-human"/></svg></span><div><b>Human-Readable Operational Outputs</b><span>"High probability survivor or anomalous distress target detected at coordinate"</span></div></div>
+          </div>
+        </div>
+
+        <!-- Right: Aspiration / Research Direction -->
+        <div class="tw-col">
+          <div class="tw-head">
+            <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-loop"/></svg></span>
+            <div><b>LONG-TERM RESEARCH DIRECTION</b><span>FUTURE EXPLORATION · STRICT SCIENTIFIC GUARDRAILS</span></div>
+          </div>
+          <div class="tw-flow">
+            <div class="tw-node"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-human"/></svg></span><div><b>Human Goal Formulation</b><span>"Search western tree line for missing hiker" (human sets operational objective)</span></div></div>
+            <div class="tw-arr" aria-hidden="true"><div class="conn"></div></div>
+            <div class="tw-node"><span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-mothership"/></svg></span><div><b>Species-Appropriate Communication Cues</b><span>Haptic guidance, directional sound tones, &amp; natural reward expectations</span></div></div>
+            <div class="tw-arr" aria-hidden="true"><div class="conn"></div></div>
+            <div class="tw-node"><span class="nic mut" aria-hidden="true"><svg class="ic"><use href="#i-paw"/></svg></span><div><b>Improved Cooperative Signaling</b><span>Non-invasive mutual feedback (NO mind uploading, thoughts, or brain hacking)</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Credibility Shield: Left = Empirical Evidence. Right = Disciplined Scientific Aspiration.</div>
+      <span class="pageno">SLIDE 05 / 08</span>
+    </footer>
+  </section>
+
+  <!-- SLIDE 6: How do we realistically build it? -->
+  <section class="slide" role="group" aria-roledescription="slide" aria-label="6 of 8 — How do we realistically build it?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: HOW DO WE REALISTICALLY BUILD IT?</div>
+        <h2 class="stitle">Pragmatic Grounding &amp; 5-Phase Research Roadmap</h2>
+        <p class="ssub">"We know the difference between today's science and tomorrow's vision." A disciplined research roadmap from cross-disciplinary R&amp;D to field validation.</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag">REALITY CHECK</span>
+        <span class="tag">5-PHASE ROADMAP</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="s5-premium-wrap">
+        <!-- Top: Reality-Check Comparison -->
+        <div class="s5-top-grid">
+          <!-- Left: Available Today -->
+          <div class="s5-tech-card">
+            <div class="s5-tech-head">
+              <div class="s5-tech-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span>
+                <div>
+                  <b>AVAILABLE TODAY (2026)</b>
+                  <span>Empirical Lab &amp; Commercial Validation</span>
+                </div>
+              </div>
+              <span class="badge b-ver">EMPIRICAL REALITY</span>
+            </div>
+            <div class="s5-tech-body">
+              <div class="s5-photo-box">
+                <img src="assets/neural_interface_lab.jpg" alt="Flexible neural interface electrode array in cleanroom lab">
+                <span class="s5-photo-tag">Flexible Sensor Arrays</span>
+              </div>
+              <div class="s5-pill-list">
+                <div class="s5-item good">
+                  <div class="s5-item-name">
+                    <span class="mini xs acc"><svg class="ic"><use href="#i-check"/></svg></span>
+                    <b>Multimodal Foundation Models</b>
+                  </div>
+                  <span class="s5-status-chip">Production Ready</span>
+                </div>
+                <div class="s5-item good">
+                  <div class="s5-item-name">
+                    <span class="mini xs acc"><svg class="ic"><use href="#i-check"/></svg></span>
+                    <b>Animal Behavioral Computer Vision</b>
+                  </div>
+                  <span class="s5-status-chip">Commercial Deploy</span>
+                </div>
+                <div class="s5-item good">
+                  <div class="s5-item-name">
+                    <span class="mini xs acc"><svg class="ic"><use href="#i-check"/></svg></span>
+                    <b>Neural Telemetry Surface Decoding</b>
+                  </div>
+                  <span class="s5-status-chip">Published Lab R&amp;D</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Future Horizons -->
+          <div class="s5-tech-card">
+            <div class="s5-tech-head">
+              <div class="s5-tech-title">
+                <span class="mini mut" aria-hidden="true"><svg class="ic"><use href="#i-x"/></svg></span>
+                <div>
+                  <b>NOT AVAILABLE YET (FUTURE)</b>
+                  <span>Explicit Boundaries Against Sci-Fi Hype</span>
+                </div>
+              </div>
+              <span class="badge b-risk" style="color:#e05252">SCIENTIFIC GUARDRAILS</span>
+            </div>
+            <div class="s5-tech-body">
+              <div class="s5-photo-box">
+                <img src="assets/behavioral_ai_vision.jpg" alt="Animal behavioral pose tracking laboratory">
+                <span class="s5-photo-tag">Ethology Pose Setup</span>
+              </div>
+              <div class="s5-pill-list">
+                <div class="s5-item bad">
+                  <div class="s5-item-name">
+                    <span class="mini xs mut"><svg class="ic"><use href="#i-x"/></svg></span>
+                    <b>Nanobot Neural Implants</b>
+                  </div>
+                  <span class="s5-status-chip">Pure Science Fiction</span>
+                </div>
+                <div class="s5-item bad">
+                  <div class="s5-item-name">
+                    <span class="mini xs mut"><svg class="ic"><use href="#i-x"/></svg></span>
+                    <b>Independent Brain LLM Chips</b>
+                  </div>
+                  <span class="s5-status-chip">Technically Infeasible</span>
+                </div>
+                <div class="s5-item bad">
+                  <div class="s5-item-name">
+                    <span class="mini xs mut"><svg class="ic"><use href="#i-x"/></svg></span>
+                    <b>Involuntary Mind Control</b>
+                  </div>
+                  <span class="s5-status-chip">Biologically Ruled Out</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Centerpiece: Majestic 5-Phase Horizontal Roadmap -->
+        <div class="s5-roadmap-hero">
+          <div class="s5-rm-head">
+            <div class="s5-rm-title">
+              <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-arrow"/></svg></span>
+              <div>
+                <b>STRATEGIC 5-PHASE RESEARCH &amp; COMMERCIALIZATION ROADMAP</b>
+                <span>Disciplined execution milestones from baseline ethology protocols to field trials</span>
+              </div>
+            </div>
+            <span class="badge b-ver" style="padding:4px 12px;font-size:8.5px"><span class="dot" style="background:var(--acc)"></span>CORE EXECUTION CENTERPIECE</span>
+          </div>
+
+          <div class="s5-phases-grid">
+            <!-- Phase 1 -->
+            <div class="s5-phase-card">
+              <div class="s5-phase-badge">
+                <span class="num">01</span>
+                <span class="phase-tag">PHASE 1</span>
+              </div>
+              <div class="s5-phase-name">Research Collaboration</div>
+              <div class="s5-phase-desc">
+                <p><strong>Disciplines:</strong> Neuroscience, Ethology, Vet &amp; AI Engineering.</p>
+                <p><strong>Deliverable:</strong> Standardized multi-species observation protocols.</p>
+              </div>
+              <div class="s5-phase-status">
+                <span class="dot-mini"></span><span>Protocol Defined</span>
+              </div>
+            </div>
+
+            <div class="s5-phase-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+            <!-- Phase 2 -->
+            <div class="s5-phase-card">
+              <div class="s5-phase-badge">
+                <span class="num">02</span>
+                <span class="phase-tag">PHASE 2</span>
+              </div>
+              <div class="s5-phase-name">Dataset Creation</div>
+              <div class="s5-phase-desc">
+                <p><strong>Telemetry:</strong> Synchronized audio, posture, thermal &amp; motion.</p>
+                <p><strong>Rule:</strong> Behavior labels, not emotion.</p>
+              </div>
+              <div class="s5-phase-status">
+                <span class="dot-mini"></span><span>Data Collection</span>
+              </div>
+            </div>
+
+            <div class="s5-phase-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+            <!-- Phase 3 (Active) -->
+            <div class="s5-phase-card active">
+              <div class="s5-phase-badge">
+                <span class="num">03</span>
+                <span class="phase-tag" style="background:var(--acc);color:#fff">ACTIVE SFM</span>
+              </div>
+              <div class="s5-phase-name">Species Foundation Models</div>
+              <div class="s5-phase-desc">
+                <p><strong>Domain SFMs:</strong> Dedicated models (Dog, Crow, Dolphin, Rat).</p>
+                <p><strong>Deliverable:</strong> Learns recurring species behavioral manifolds.</p>
+              </div>
+              <div class="s5-phase-status" style="color:var(--acc)">
+                <span class="dot-mini" style="background:var(--acc)"></span><span>Active Core R&amp;D</span>
+              </div>
+            </div>
+
+            <div class="s5-phase-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+            <!-- Phase 4 -->
+            <div class="s5-phase-card">
+              <div class="s5-phase-badge">
+                <span class="num">04</span>
+                <span class="phase-tag">PHASE 4</span>
+              </div>
+              <div class="s5-phase-name">Mothership Coordination</div>
+              <div class="s5-phase-desc">
+                <p><strong>Architecture:</strong> MoE multi-agent router &amp; telemetry bus.</p>
+                <p><strong>Rule:</strong> Coordinates specialists, never replaces them.</p>
+              </div>
+              <div class="s5-phase-status">
+                <span class="dot-mini"></span><span>MoE Routing Spec</span>
+              </div>
+            </div>
+
+            <div class="s5-phase-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+            <!-- Phase 5 -->
+            <div class="s5-phase-card">
+              <div class="s5-phase-badge">
+                <span class="num">05</span>
+                <span class="phase-tag">PHASE 5</span>
+              </div>
+              <div class="s5-phase-name">Field Validation</div>
+              <div class="s5-phase-desc">
+                <p><strong>Environments:</strong> Controlled SAR &amp; reserve conservation pilots.</p>
+                <p><strong>Rule:</strong> Zero premature deployment claims without telemetry.</p>
+              </div>
+              <div class="s5-phase-status">
+                <span class="dot-mini"></span><span>Controlled Pilots</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Psychological Goal: Judges immediately recognize: "This team actually has a disciplined research plan."</div>
+      <span class="pageno">SLIDE 06 / 08</span>
+    </footer>
+  </section>
+
+  <!-- SLIDE 7: How do we keep it ethical? -->
+  <section class="slide" role="group" aria-roledescription="slide" aria-label="7 of 8 — How do we keep it ethical?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: HOW DO WE KEEP IT ETHICAL?</div>
+        <h2 class="stitle">Ethical Boundaries &amp; Scientific Defense</h2>
+        <p class="ssub">Preserving animal free will and biological agency. Answering difficult questions before judges ask them.</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag"><svg class="ic"><use href="#i-shield"/></svg>BIOETHICS FIRST</span>
+        <span class="tag">JUDGE Q&amp;A READY</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="s6-premium-wrap">
+        <div class="s6-eth-grid">
+          <!-- Left: 4 Ethical Principles -->
+          <div class="s6-card">
+            <div class="s6-card-head">
+              <div class="s6-card-title">
+                <span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>
+                <div>
+                  <b>Four Ethical Principles</b>
+                  <span>Non-negotiable bioethical foundations &amp; operational agency</span>
+                </div>
+              </div>
+              <span class="badge b-ver">BIOETHICS CHARTER</span>
+            </div>
+            <div class="s6-card-list">
+              <div class="eth-tile">
+                <div class="eth-tile-num">01</div>
+                <div class="eth-tile-content">
+                  <b>Human Responsibility</b>
+                  <span>Humans retain <strong>sole operational authority and accountability</strong> for every tactical and strategic decision.</span>
+                </div>
+              </div>
+              <div class="eth-tile">
+                <div class="eth-tile-num">02</div>
+                <div class="eth-tile-content">
+                  <b>AI Translation, Not Authority</b>
+                  <span>AI operates strictly as a <strong>communication interpreter</strong>, never as an autonomous master or decision-maker.</span>
+                </div>
+              </div>
+              <div class="eth-tile">
+                <div class="eth-tile-num">03</div>
+                <div class="eth-tile-content">
+                  <b>Natural Instincts &amp; Free Will</b>
+                  <span>Animals preserve their <strong>intrinsic biological agency</strong> without forced conditioning, neural overrides, or coercion.</span>
+                </div>
+              </div>
+              <div class="eth-tile">
+                <div class="eth-tile-num">04</div>
+                <div class="eth-tile-content">
+                  <b>No Manipulation or Control</b>
+                  <span>Sensory cues strictly reject <strong>involuntary behavioral modification</strong>; mutual cooperation remains consensual.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Scientific Boundaries (Judge FAQ) -->
+          <div class="s6-card">
+            <div class="s6-card-head">
+              <div class="s6-card-title">
+                <span class="mini mut" aria-hidden="true"><svg class="ic"><use href="#i-warn"/></svg></span>
+                <div>
+                  <b>Scientific Boundaries (Judge FAQ)</b>
+                  <span>Direct empirical defense against skepticism and sci-fi hype</span>
+                </div>
+              </div>
+              <span class="badge b-ver">JUDGE DEFENSE READY</span>
+            </div>
+            <div class="s6-card-list">
+              <!-- Q1 -->
+              <div class="faq-tile">
+                <div class="faq-tile-top">
+                  <div class="faq-tile-q">Can AI read thoughts?</div>
+                  <span class="ans-pill no"><svg class="ic"><use href="#i-x"/></svg>NO · Statistical Patterns Only</span>
+                </div>
+                <div class="faq-tile-a"><strong>No.</strong> It decodes observable multi-sensor behavioral patterns and acoustics—not internal subjective thoughts.</div>
+              </div>
+
+              <!-- Q2 -->
+              <div class="faq-tile">
+                <div class="faq-tile-top">
+                  <div class="faq-tile-q">Can one signal reveal emotion?</div>
+                  <span class="ans-pill no"><svg class="ic"><use href="#i-x"/></svg>NO · Cross-Sensor Fusion Required</span>
+                </div>
+                <div class="faq-tile-a"><strong>No.</strong> Single signals yield false positives; valid ethological ground truth requires synchronized multimodal fusion.</div>
+              </div>
+
+              <!-- Q3 -->
+              <div class="faq-tile">
+                <div class="faq-tile-top">
+                  <div class="faq-tile-q">Can animals become human-intelligent?</div>
+                  <span class="ans-pill no"><svg class="ic"><use href="#i-x"/></svg>NO · Preserves Species Integrity</span>
+                </div>
+                <div class="faq-tile-a"><strong>No.</strong> Animals retain their evolutionary intelligence; AEGIS builds a bridge without altering natural biology.</div>
+              </div>
+
+              <!-- Q4 -->
+              <div class="faq-tile">
+                <div class="faq-tile-top">
+                  <div class="faq-tile-q">Can AI improve interspecies cooperation?</div>
+                  <span class="ans-pill yes"><svg class="ic"><use href="#i-check"/></svg>YES · Mutual Telemetry Bridge</span>
+                </div>
+                <div class="faq-tile-a"><strong>Yes.</strong> By translating species-specific indicators into actionable human operational intelligence.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grand Anchor Manifesto Card -->
+        <div class="ethics-anchor-hero">
+          <div class="anchor-left-box">
+            <div class="anchor-crest">
+              <svg class="ic"><use href="#i-shield"/></svg>
+            </div>
+            <div class="anchor-body">
+              <div class="anchor-eyebrow">
+                <span class="dot" style="background:var(--acc)"></span>
+                NON-NEGOTIABLE CORE CHARTER
+              </div>
+              <div class="anchor-title">TRANSLATION IS NOT CONTROL.</div>
+              <p class="anchor-desc">Project AEGIS strictly rejects cognitive intervention. We build an intelligent acoustic and physiological bridge that honors animal free will, instinctual intelligence, and human ethical responsibility.</p>
+            </div>
+          </div>
+          <div class="anchor-badges">
+            <span class="badge b-ver"><svg class="ic"><use href="#i-check"/></svg>100% NON-INVASIVE</span>
+            <span class="badge b-ver"><svg class="ic"><use href="#i-check"/></svg>HUMAN-IN-THE-LOOP</span>
+            <span class="badge b-ver"><svg class="ic"><use href="#i-check"/></svg>ZERO COGNITIVE COERCION</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Psychological Goal: Judges stop worrying about technological misuse and recognize strict ethical boundaries.</div>
+      <span class="pageno">SLIDE 07 / 08</span>
+    </footer>
+  </section>
+
+  <!-- SLIDE 8: Why does this future matter? -->
+  <section class="slide" role="group" aria-roledescription="slide" aria-label="8 of 8 — Why does this future matter?">
+    <div class="shead">
+      <div>
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>CORE QUESTION: WHY DOES THIS FUTURE MATTER?</div>
+        <h2 class="stitle">Wildlife Conservation in Action</h2>
+        <p class="ssub">A forest ranger begins a search operation. A trained animal responds naturally. AEGIS interprets behavioral patterns. Human makes the final decision.</p>
+      </div>
+      <div class="hbadges">
+        <span class="tag"><svg class="ic"><use href="#i-eye"/></svg>CONSERVATION SCENARIO</span>
+        <span class="tag">CLOSING PITCH</span>
+      </div>
+    </div>
+
+    <div class="body">
+      <div class="s8-premium-wrap">
+        <!-- Top: Grounded 5-Step Operational Flow -->
+        <div class="s8-pipeline">
+          <!-- Step 1 -->
+          <div class="s8-pipe-step">
+            <div class="s8-step-top">
+              <span class="num">01</span>
+              <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-human"/></svg></span>
+            </div>
+            <div class="s8-step-name">Forest Ranger</div>
+            <div class="s8-step-desc">Initiates search operation with high-level human goal.</div>
+          </div>
+
+          <div class="s8-pipe-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+          <!-- Step 2 -->
+          <div class="s8-pipe-step">
+            <div class="s8-step-top">
+              <span class="num">02</span>
+              <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-dog"/></svg></span>
+            </div>
+            <div class="s8-step-name">Trained Animal</div>
+            <div class="s8-step-desc">Responds instinctively to scent gradient and terrain.</div>
+          </div>
+
+          <div class="s8-pipe-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+          <!-- Step 3 (Core Highlight) -->
+          <div class="s8-pipe-step highlight">
+            <div class="s8-step-top">
+              <span class="num" style="color:var(--acc)">03</span>
+              <span class="nic" aria-hidden="true" style="color:var(--acc)"><svg class="ic"><use href="#i-mothership"/></svg></span>
+            </div>
+            <div class="s8-step-name">AEGIS Platform</div>
+            <div class="s8-step-desc">Decodes posture and acoustic behavioral patterns.</div>
+          </div>
+
+          <div class="s8-pipe-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+          <!-- Step 4 -->
+          <div class="s8-pipe-step">
+            <div class="s8-step-top">
+              <span class="num">04</span>
+              <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-eye"/></svg></span>
+            </div>
+            <div class="s8-step-name">Situational Map</div>
+            <div class="s8-step-desc">Ranger receives spatial probability telemetry on HUD.</div>
+          </div>
+
+          <div class="s8-pipe-arr" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+
+          <!-- Step 5 -->
+          <div class="s8-pipe-step">
+            <div class="s8-step-top">
+              <span class="num">05</span>
+              <span class="nic" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span>
+            </div>
+            <div class="s8-step-name">Human Decision</div>
+            <div class="s8-step-desc">Ranger verifies evidence and makes tactical command.</div>
+          </div>
+        </div>
+
+        <!-- Bottom Split: Real Field Evidence + Master Synthesis -->
+        <div class="s8-bottom-split">
+          <!-- Left: Real Field Photography Panel -->
+          <div class="s8-photo-card">
+            <div class="s8-photo-head">
+              <b>Empirical Field Operations</b>
+              <span class="badge b-ver">PACIFIC NORTHWEST RESERVE</span>
+            </div>
+            <div class="s8-photo-frame">
+              <img src="assets/ranger_conservation_dog.jpg" alt="Forest ranger in field uniform with trained conservation tracking canine in national park">
+              <div class="s8-photo-glass-bar">
+                <div>
+                  <div class="s8-glass-title">Canine Olfactory Telemetry &amp; Ranger HUD</div>
+                  <div class="s8-glass-sub">Synchronized non-invasive sensor harness + tactical tablet telemetry</div>
+                </div>
+                <span class="badge b-ver" style="background:rgba(16,185,129,.2);color:#10b981;border:1px solid rgba(16,185,129,.4)">ACTIVE PATROL</span>
+              </div>
+            </div>
+            <div class="s8-photo-metrics">
+              <span class="s8-metric-chip"><span class="dot-mini"></span>Non-Invasive Sensing</span>
+              <span class="s8-metric-chip"><span class="dot-mini"></span>Natural Instinct Preserved</span>
+              <span class="s8-metric-chip"><span class="dot-mini"></span>Human Command Sole Authority</span>
+            </div>
+          </div>
+
+          <!-- Right: Master Synthesis Column -->
+          <div class="s8-synthesis-col">
+            <!-- Takeaway Card -->
+            <div class="s8-takeaway-card">
+              <div class="s8-takeaway-head">
+                <div class="s8-takeaway-title">
+                  <span class="mini xs acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>
+                  <span>The Defining Sentence Judges Should Remember</span>
+                </div>
+                <span class="badge b-ver">CORE FORMULATION</span>
+              </div>
+              <p class="s8-takeaway-text">"AEGIS is an AI-powered interspecies framework that combines multimodal biological sensing with species foundation models to help humans collaborate with working species while strictly preserving their natural agency."</p>
+              <div class="s8-takeaway-checks">
+                <div class="s8-check-item"><span class="mini xs acc"><svg class="ic"><use href="#i-check"/></svg></span><span><strong>Empirical:</strong> Grounded in dossiers</span></div>
+                <div class="s8-check-item"><span class="mini xs acc"><svg class="ic"><use href="#i-check"/></svg></span><span><strong>Specialized:</strong> Species-specific SFMs</span></div>
+                <div class="s8-check-item"><span class="mini xs acc"><svg class="ic"><use href="#i-check"/></svg></span><span><strong>Decisive:</strong> Human command loop</span></div>
+                <div class="s8-check-item"><span class="mini xs acc"><svg class="ic"><use href="#i-check"/></svg></span><span><strong>Ethical:</strong> Translation, not control</span></div>
+              </div>
+            </div>
+
+            <!-- Closing Philosophy Quote Card -->
+            <div class="s8-quote-card">
+              <div class="s8-quote-icon" aria-hidden="true">
+                <svg class="ic"><use href="#i-quote"/></svg>
+              </div>
+              <div class="s8-quote-body">
+                <p>"Humanity's next breakthrough may not come from building smarter machines. It may come from learning how to communicate with the intelligence that already exists in nature."</p>
+                <div class="s8-quote-sig">
+                  <span class="dot" style="background:var(--acc)"></span>
+                  PROJECT AEGIS · DECODING INSTINCT, ENCODING INTENT
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="sfoot">
+      <div class="fmeta"><span class="mini acc" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>Founder Delivery: Leave generous whitespace. Pause. Look at the judges. Then simply say: "Thank you."</div>
+      <span class="pageno">SLIDE 08 / 08</span>
+    </footer>
+  </section>
+
+</div>
+</main>
+
+<div class="edge edge-l" id="edgeL" aria-hidden="true"><svg class="ic"><use href="#i-chl"/></svg></div>
+<div class="edge edge-r" id="edgeR" aria-hidden="true"><svg class="ic"><use href="#i-chr"/></svg></div>
+<button type="button" class="navb prev" id="prevBtn" aria-label="Previous slide (Left arrow or Backspace)"><svg class="ic"><use href="#i-chl"/></svg></button>
+<button type="button" class="navb next" id="nextBtn" aria-label="Next slide (Right arrow or Space)"><svg class="ic"><use href="#i-chr"/></svg></button>
+
+<!-- Founder Prep Notes Drawer (Toggled by 'N' or brain icon) -->
+<aside class="notes-drawer" id="notesDrawer" aria-label="Founder Preparation Notes" role="complementary">
+  <div class="notes-head">
+    <div class="notes-head-title"><span class="dot" aria-hidden="true"></span><span id="notesSlideTitle">Founder Prep — Slide 1</span></div>
+    <button type="button" class="notes-close" id="notesCloseBtn" aria-label="Close founder notes"><svg class="ic" style="width:14px;height:14px"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="notes-grid">
+    <div class="notes-box">
+      <span class="notes-label">Slide Purpose &amp; Core Question</span>
+      <p class="notes-text" id="notesPurpose"><strong>Core Question: What is AEGIS?</strong><br>Establish credibility in the first 10 seconds. The pitch is about partnership, never control.</p>
+    </div>
+    <div class="notes-box">
+      <span class="notes-label">Founder Explanation Strategy</span>
+      <p class="notes-text" id="notesStrategy">Highlight the core equation: <strong>Human sets the goal → AI becomes the bridge → Animal keeps natural instincts.</strong> Point to the real search-and-rescue canine photo. Emphasize: 'Like Google Translate for biological patterns, strictly non-invasive.'</p>
+    </div>
+    <div class="notes-box">
+      <span class="notes-label">Judge Defense Q&amp;A</span>
+      <p class="notes-text" id="notesQA"><strong>Judge Challenge: 'Is this mind reading?'</strong><br>Answer: <strong>No.</strong> It interprets observable behavioral patterns using multimodal biological signals.</p>
+    </div>
+  </div>
+</aside>
+
+<noscript><style>.frame{position:static;transform:none;width:auto;height:auto}.slide{position:relative;opacity:1;visibility:visible;pointer-events:auto;margin:24px auto}</style></noscript>
+
+<script>
+(function(){
+  "use strict";
+  var DW = 1280, DH = 720;
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var dots = Array.prototype.slice.call(document.querySelectorAll(".ndot"));
+  var N = slides.length;
+  var cur = -1;
+  var frame = document.getElementById("frame");
+  var stage = document.getElementById("stage");
+  var pfill = document.getElementById("pfill");
+  var counter = document.getElementById("counter");
+  var prevBtn = document.getElementById("prevBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var mqMobile = window.matchMedia("(max-width: 820px)");
+
+  function isDoc(){ return mqMobile.matches; }
+
+  function fit(){
+    document.body.classList.toggle("doc", isDoc());
+    if(!isDoc()){
+      var r = stage.getBoundingClientRect();
+      var s = Math.min(r.width / DW, r.height / DH);
+      frame.style.transform = "translate(-50%,-50%) scale(" + s + ")";
+      stage.scrollTop = 0;
+    } else {
+      frame.style.transform = "none";
+    }
+  }
+
+  function go(n){
+    n = Math.max(0, Math.min(N - 1, n));
+    if(n === cur) return;
+    cur = n;
+    for(var k = 0; k < N; k++){
+      var on = (k === n);
+      slides[k].classList.toggle("active", on);
+      slides[k].setAttribute("aria-hidden", String(!on));
+      if(dots[k]) dots[k].classList.toggle("active", on);
+    }
+    counter.textContent = (n + 1) + " / " + N;
+    updateNotes(n);
+    pfill.style.width = "calc((100% - 6px) * " + ((n + 1) / N) + ")";
+    prevBtn.disabled = (n === 0);
+    nextBtn.disabled = (n === N - 1);
+    if(isDoc()) stage.scrollTop = 0;
+  }
+
+  function next(){ go(cur + 1); }
+  function prev(){ go(cur - 1); }
+
+  function toggleFS(){
+    var d = document;
+    if(d.fullscreenElement || d.webkitFullscreenElement){
+      (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+    } else {
+      var el = d.documentElement;
+      var fn = el.requestFullscreen || el.webkitRequestFullscreen;
+      if(fn){ var p = fn.call(el); if(p && p.catch) p.catch(function(){}); }
+    }
+  }
+
+  prevBtn.addEventListener("click", prev);
+  nextBtn.addEventListener("click", next);
+  document.getElementById("fsbtn").addEventListener("click", toggleFS);
+  document.getElementById("printbtn").addEventListener("click", function(){ window.print(); });
+  document.getElementById("edgeL").addEventListener("click", prev);
+  document.getElementById("edgeR").addEventListener("click", next);
+  dots.forEach(function(d){
+    d.addEventListener("click", function(){ go(parseInt(d.getAttribute("data-target"), 10)); });
+  });
+
+  document.addEventListener("keydown", function(e){
+    if(e.key === "ArrowRight" || e.key === " "){ e.preventDefault(); e.shiftKey ? prev() : next(); }
+    else if(e.key === "ArrowLeft" || e.key === "Backspace"){ e.preventDefault(); prev(); }
+    else if(e.key === "Home"){ e.preventDefault(); go(0); }
+    else if(e.key === "End"){ e.preventDefault(); go(N - 1); }
+    else if(e.key === "f" || e.key === "F"){ toggleFS(); }
+    else if(e.key === "p" || e.key === "P"){ window.print(); }
+    else if(e.key === "n" || e.key === "N"){ toggleNotes(); }
+    else if(e.key >= "1" && e.key <= String(N)){ go(parseInt(e.key, 10) - 1); }
+  });
+
+  var tx = 0, ty = 0, tOn = false;
+  stage.addEventListener("touchstart", function(e){
+    if(e.touches.length !== 1) return;
+    tx = e.touches[0].clientX; ty = e.touches[0].clientY; tOn = true;
+  }, {passive:true});
+  stage.addEventListener("touchend", function(e){
+    if(!tOn) return; tOn = false;
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if(Math.abs(dx) > 60 && Math.abs(dy) < 90 && Math.abs(dx) > Math.abs(dy) * 1.2){
+      dx < 0 ? next() : prev();
+    }
+  }, {passive:true});
+
+  // Founder Preparation Data for each slide (Updated with Master Prompt Philosophy)
+  var founderNotes = [
+    {
+      title: "Slide 1 — What is AEGIS?",
+      purpose: "<strong>Core Question: What is AEGIS?</strong><br>Make judges understand within 10 seconds. Psychological goal: 'This is ambitious, but grounded.'",
+      strategy: "Hammer the 3-step formula: <strong>Human sets the goal. AI becomes the bridge. Animal keeps natural instincts.</strong> Point to the working SAR dog. Emphasize: 'Not controlling animals, but building an intelligent translation bridge.'",
+      qa: "<strong>Judge Challenge: 'Is this mind reading?'</strong><br>Answer: <strong>No.</strong> It interprets behavioral patterns using multiple biological signals."
+    },
+    {
+      title: "Slide 2 — Where does its intelligence come from?",
+      purpose: "<strong>Core Question: Where does its intelligence come from?</strong><br>Establish that AEGIS is built on multidisciplinary science, not spontaneous AI. The Species Dossier is the foundational knowledge base.",
+      strategy: "Walk through the 3 phases: <strong>1. Multidisciplinary Research Team (Neuro, Ethology, Vet, Wildlife, AI, Signal) → 2. Building the Species Dossier (Observable behavior, strictly NOT emotion) → 3. Training Specialist SFMs.</strong> Emphasize the core formula: <em>'Research creates the dossier. The dossier trains the SFM. The SFM powers AEGIS.'</em>",
+      qa: "<strong>Judge Challenge: 'Can AI guess what animals feel?'</strong><br>Answer: <strong>No.</strong> We reject emotional assumptions. We document synchronized observable behavioral, acoustic, and physiological evidence."
+    },
+    {
+      title: "Slide 3 — How does it observe animals?",
+      purpose: "<strong>Core Question: How does it observe animals?</strong><br>Teach the core principle: <em>'One signal never tells the whole story.'</em>",
+      strategy: "Walk through the 3-tier pipeline: <strong>Multiple Inputs → Pattern Fusion → Behavior Interpretation.</strong> Point to the 6 modalities (vocalizations, posture, heart rate, temp, movement, neural research). Note that neural input is strictly bounded to lab telemetry.",
+      qa: "<strong>Judge Challenge: 'Why can't handlers just observe?'</strong><br>Answer: Single-sensor assumptions fail; only multimodal fusion reveals true emotional and physiological context."
+    },
+    {
+      title: "Slide 4 — How is the system organized?",
+      purpose: "<strong>Core Question: How is the system organized?</strong><br>Deliver the signature architectural breakthrough. Psychological goal: <em>'One coordinator. Many specialists.'</em>",
+      strategy: "Walk through the pipeline: <strong>Human Operator → Intent Interpreter → Mothership → Species Foundation Models (SFM).</strong> Emphasize that each species gets deep ethological expertise (Dog SFM, Crow SFM, Dolphin SFM, Rat SFM) rather than a fragile monolithic model.",
+      qa: "<strong>Judge Challenge: 'Why not one giant model?'</strong><br>Answer: Biological ethology is species-specific. Monolithic models hallucinate cross-species cues; domain SFMs preserve precise behavioral fidelity."
+    },
+    {
+      title: "Slide 5 — What is possible today vs tomorrow?",
+      purpose: "<strong>Core Question: What is possible today vs tomorrow?</strong><br>Protect credibility by clearly dividing empirical evidence from long-term research.",
+      strategy: "Left side (Decoding Today): observable behavioral patterns & statistical classification. Right side (Long-Term Research): non-invasive sensory cues. Emphasize: <strong>Zero mind uploading, zero thought transmission, zero universal translator hype.</strong>",
+      qa: "<strong>Judge Challenge: 'Are you inserting thoughts into animals?'</strong><br>Answer: <strong>No.</strong> We reinforce natural attention and reward expectations through non-invasive sensory cues."
+    },
+    {
+      title: "Slide 6 — How do we realistically build it?",
+      purpose: "<strong>Core Question: How do we realistically build it?</strong><br>Earn trust with a concrete 5-phase research roadmap. Psychological goal: <em>'This team actually has a research plan.'</em>",
+      strategy: "Walk through the 5 phases: <strong>1. Research Collaboration (Neuro, Ethology, Vet & AI) → 2. Dataset Creation (Behavior labels, NOT emotion) → 3. Species Foundation Models (Dog, Crow, Dolphin, Rat) → 4. Mothership Coordination → 5. Field Validation (Controlled trials).</strong>",
+      qa: "<strong>Judge Challenge: 'Isn't this science fiction?'</strong><br>Answer: By ruling out nanobots and brain chips, and focusing on observable multimodal telemetry in lab-validated species, our 5-phase roadmap is pragmatically grounded."
+    },
+    {
+      title: "Slide 7 — How do we keep it ethical?",
+      purpose: "<strong>Core Question: How do we keep it ethical?</strong><br>Deliver the credibility shield. Psychological goal: Judges stop worrying about misuse.",
+      strategy: "Deliver the 4 principles firmly. Anchor on the large callout: <strong>'Translation is not control.'</strong> In Q&A, deliver decisive answers: <strong>No, No, No, and Yes.</strong>",
+      qa: "<strong>Judge Challenge: 'Can AI read thoughts or create human-like animal intellect?'</strong><br>Answer: <strong>No and No.</strong> We learn statistical behavioral patterns to partner with existing natural intelligence."
+    },
+    {
+      title: "Slide 8 — Why does this future matter?",
+      purpose: "<strong>Core Question: Why does this future matter?</strong><br>Leave the audience inspired, not skeptical. Final frame of a TED Talk.",
+      strategy: "Walk through the grounded conservation scenario: Ranger directs → Trained dog responds naturally → AEGIS interprets telemetry → Ranger makes final operational decision. Deliver the closing quote with generous whitespace.",
+      qa: "<strong>Delivery Tip:</strong><br>After the final quote: '...intelligence that already exists in nature.' Pause for 2 full seconds. Look at the judges. Then simply say: <em>'Thank you.'</em>"
+    }
+  ];
+
+  var notesDrawer = document.getElementById("notesDrawer");
+  var notesBtn = document.getElementById("notesbtn");
+  var notesCloseBtn = document.getElementById("notesCloseBtn");
+  var notesSlideTitle = document.getElementById("notesSlideTitle");
+  var notesPurpose = document.getElementById("notesPurpose");
+  var notesStrategy = document.getElementById("notesStrategy");
+  var notesQA = document.getElementById("notesQA");
+
+  function toggleNotes(){
+    if(!notesDrawer) return;
+    var isOpen = notesDrawer.classList.toggle("open");
+    if(notesBtn) notesBtn.classList.toggle("active", isOpen);
+  }
+
+  function updateNotes(n){
+    if(!founderNotes[n]) return;
+    var data = founderNotes[n];
+    if(notesSlideTitle) notesSlideTitle.textContent = data.title;
+    if(notesPurpose) notesPurpose.innerHTML = data.purpose;
+    if(notesStrategy) notesStrategy.innerHTML = data.strategy;
+    if(notesQA) notesQA.innerHTML = data.qa;
+  }
+
+  if(notesBtn) notesBtn.addEventListener("click", toggleNotes);
+  if(notesCloseBtn) notesCloseBtn.addEventListener("click", toggleNotes);
+
+  window.addEventListener("resize", fit);
+  if(mqMobile.addEventListener) mqMobile.addEventListener("change", fit);
+
+  fit();
+  go(0);
+})();
+</script>
+</body>
+</html>
