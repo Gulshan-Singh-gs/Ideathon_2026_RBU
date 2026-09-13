@@ -16,7 +16,7 @@
 
 <br/>
 
-**[🖥️ Launch Interactive 8-Slide Deck](index.html)** • **[🏛️ System Architecture](#️-system-architecture--dataflow)** • **[🔬 Research Foundation](#-the-scientific-foundation-species-dossiers)** • **[⚡ Multimodal Pipeline](#-multimodal-biological-sensing-pipeline)** • **[📊 Comparative Matrix](#-comparative-advantage--state-of-the-art)** • **[🗺️ 5-Phase Roadmap](#-5-phase-research--commercialization-roadmap)** • **[⚖️ Bioethics Charter](#️-ethical-boundaries--governance)** • **[🎙️ Pitch Guide](#-ideathon-stage-pitch-guide-3540-mins)**
+**[ Launch Interactive 8-Slide Deck](index.html)** • **[🏛️ System Architecture](#️-system-architecture--dataflow)** • **[🔬 Research Foundation](#-the-scientific-foundation-species-dossiers)** • **[ Multimodal Pipeline](#-multimodal-biological-sensing-pipeline)** • **[Comparative Matrix](#-comparative-advantage--state-of-the-art)** • **[ 5-Phase Roadmap](5-phase-research--commercialization-roadmap)** • **[ Bioethics Charter](#️-ethical-boundaries--governance)** • **[🎙️ Pitch Guide](#-ideathon-stage-pitch-guide-3540-mins)**
 
 </div>
 
@@ -24,30 +24,30 @@
 
 ## 📑 Table of Contents
 
-- [🧭 Executive Summary](#-executive-summary)
-- [🎯 The Core Philosophy & Mathematical Axiom](#-the-core-philosophy--mathematical-axiom)
-- [🔬 The Scientific Foundation: Species Dossiers](#-the-scientific-foundation-species-dossiers)
-- [⚡ Multimodal Biological Sensing Pipeline](#-multimodal-biological-sensing-pipeline)
-- [🏗️ System Architecture & Dataflow](#️-system-architecture--dataflow)
+- [ Executive Summary](#-executive-summary)
+- [ The Core Philosophy & Mathematical Axiom](#-the-core-philosophy--mathematical-axiom)
+- [ The Scientific Foundation: Species Dossiers](#-the-scientific-foundation-species-dossiers)
+- [ Multimodal Biological Sensing Pipeline](#-multimodal-biological-sensing-pipeline)
+- [ System Architecture & Dataflow](#️-system-architecture--dataflow)
   - [Mothership & Domain SFM Topology](#mothership--domain-sfm-topology)
   - [Telemetry Bus JSON Packet Specification](#telemetry-bus-json-packet-specification)
-- [📊 Comparative Advantage & State of the Art](#-comparative-advantage--state-of-the-art)
-- [🗺️ 5-Phase Research & Commercialization Roadmap](#-5-phase-research--commercialization-roadmap)
-- [⚖️ Ethical Boundaries & Governance](#️-ethical-boundaries--governance)
+- [ Comparative Advantage & State of the Art](#-comparative-advantage--state-of-the-art)
+- [ 5-Phase Research & Commercialization Roadmap](#-5-phase-research--commercialization-roadmap)
+- [ Ethical Boundaries & Governance](#️-ethical-boundaries--governance)
   - [Four Inviolable Principles](#four-inviolable-principles)
   - [Judge Defense Matrix (Scientific Q&A)](#judge-defense-matrix-scientific-qa)
-- [🌲 Real-World Field Deployments](#-real-world-field-deployments)
+- [ Real-World Field Deployments](#-real-world-field-deployments)
   - [1. Alpine & Disaster Search-and-Rescue (SAR)](#1-alpine--disaster-search-and-rescue-sar)
   - [2. Anti-Poaching & Wildlife Reserve Conservation](#2-anti-poaching--wildlife-reserve-conservation)
   - [3. Marine Biosonar & Echolocation Monitoring](#3-marine-biosonar--echolocation-monitoring)
-- [🖥️ Interactive Master Presentation Deck](#️-interactive-master-presentation-deck)
-- [🎙️ Ideathon Stage Pitch Guide (3.5–4.0 Mins)](#-ideathon-stage-pitch-guide-3540-mins)
-- [🚀 Quickstart & Setup](#-quickstart--setup)
-- [📖 Scientific Citations & Benchmarks](#-scientific-citations--benchmarks)
+- [ Interactive Master Presentation Deck](#️-interactive-master-presentation-deck)
+- [ Ideathon Stage Pitch Guide (3.5–4.0 Mins)](#-ideathon-stage-pitch-guide-3540-mins)
+- [ Quickstart & Setup](#-quickstart--setup)
+- [ Scientific Citations & Benchmarks](#-scientific-citations--benchmarks)
 
 ---
 
-## 🧭 Executive Summary
+##  Executive Summary
 
 **Project AEGIS** is a bio-computation framework engineered to bridge the semantic and operational communication gap between humans and intelligent working animals (e.g., search canines, corvid trackers, cetacean biosensors) while strictly preserving biological agency, instinctual behavior, and evolutionary free will.
 
@@ -66,7 +66,7 @@ Traditional animal training relies on conditioned reinforcement of individual an
 
 ---
 
-## 🎯 The Core Philosophy & Mathematical Axiom
+##  The Core Philosophy & Mathematical Axiom
 
 AEGIS is rooted in three foundational design axioms:
 
@@ -85,7 +85,7 @@ $$\text{Where: } \mathbf{\mathcal{T}_{\text{AEGIS}}} = \text{Translate}\Big(\mat
 
 ---
 
-## 🔬 The Scientific Foundation: Species Dossiers
+##  The Scientific Foundation: Species Dossiers
 
 Before an AI model can comprehend a species, science must map its natural ethogram. AEGIS begins in the laboratory with **Species Dossiers**—standardized, peer-reviewed bio-ontologies that define how a species communicates across 7 discrete empirical telemetry streams.
 
@@ -122,7 +122,7 @@ AEGIS strictly refuses subjective emotional speculation ("the dog looks sad") in
 
 ---
 
-## ⚡ Multimodal Biological Sensing Pipeline
+##  Multimodal Biological Sensing Pipeline
 
 A critical vulnerability in past animal-tech attempts is the **"Single-Sensor Fallacy"**—assuming that barking equals aggression, or elevated heart rate equals fear.
 
@@ -173,7 +173,7 @@ By fusing cross-correlated modalities, AEGIS achieves $>96\%$ classification con
 
 ---
 
-## 🏗️ System Architecture & Dataflow
+##  System Architecture & Dataflow
 
 AEGIS uses a **Hierarchical Mixture-of-Experts (MoE)** architecture. Instead of forcing one bloated, ungrounded model to understand all of nature, AEGIS pairs a central orchestration platform (**The Mothership**) with lightweight, highly tuned **Species Foundation Models (SFMs)**.
 
@@ -265,7 +265,7 @@ Every animal wearable broadcasts synchronized telemetry packets to the Mothershi
 
 ---
 
-## 📊 Comparative Advantage & State of the Art
+##  Comparative Advantage & State of the Art
 
 | Evaluation Dimension | Traditional Animal Training | Consumer Pet Wearables (e.g. FitBark) | Invasive Neural BCI (e.g. Animal Implants) | Naive Generative AI (Direct Audio LLMs) | **Project AEGIS (Hierarchical MoE + Dossiers)** |
 | :--- | :---: | :---: | :---: | :---: | :---: |
@@ -279,7 +279,7 @@ Every animal wearable broadcasts synchronized telemetry packets to the Mothershi
 
 ---
 
-## 🗺️ 5-Phase Research & Commercialization Roadmap
+##  5-Phase Research & Commercialization Roadmap
 
 AEGIS maintains rigorous demarcation between **empirically validated capabilities available today** and **long-term scientific research directions**.
 
@@ -321,7 +321,7 @@ AEGIS maintains rigorous demarcation between **empirically validated capabilitie
 
 ---
 
-## ⚖️ Ethical Boundaries & Governance
+##  Ethical Boundaries & Governance
 
 Project AEGIS is founded on the inviolable covenant: **"Translation is not control."**
 
@@ -345,7 +345,7 @@ When presenting to academic, venture, or ethical review panels, AEGIS stands on 
 
 ---
 
-## 🌲 Real-World Field Deployments
+##  Real-World Field Deployments
 
 <div align="center">
 
@@ -370,7 +370,7 @@ When presenting to academic, venture, or ethical review panels, AEGIS stands on 
 
 ---
 
-## 🖥️ Interactive Master Presentation Deck
+##  Interactive Master Presentation Deck
 
 The project includes an interactive, browser-native presentation deck located at [`index.html`](index.html).
 
@@ -392,7 +392,7 @@ The project includes an interactive, browser-native presentation deck located at
 
 ---
 
-## 🎙️ Ideathon Stage Pitch Guide (3.5–4.0 Mins)
+##  Ideathon Stage Pitch Guide (3.5–4.0 Mins)
 
 When pitching Project AEGIS to judges, use this disciplined slide-by-slide timing breakdown:
 
@@ -432,8 +432,7 @@ When pitching Project AEGIS to judges, use this disciplined slide-by-slide timin
 
 ---
 
-## 🚀 Quickstart & Setup
-
+##  Quickstart & Setup
 Project AEGIS is designed to be self-contained and run locally without requiring heavyweight node runtime build tools.
 
 ### 1. Clone the Repository
@@ -456,7 +455,7 @@ python -m http.server 8000
 
 ---
 
-## 📖 Scientific Citations & Benchmarks
+##  Scientific Citations & Benchmarks
 
 1. **Earth Species Project (ESP)** — *Bio-logger Ethogram Benchmark (BEBE): A standardized machine learning benchmark for computational animal behavior analysis using movement telemetry.* (Nature Movement Ecology, 2024).
 2. **Williams, K. et al.** — *Non-Invasive Wearable Biotelemetry in Working Canine Search and Rescue Operations.* Journal of Veterinary Behavior, 2023.
