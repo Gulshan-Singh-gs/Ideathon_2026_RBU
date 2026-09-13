@@ -16,7 +16,7 @@
 
 <br/>
 
-**[ Launch Interactive 8-Slide Deck](index.html)** • **[🏛️ System Architecture](#️-system-architecture--dataflow)** • **[🔬 Research Foundation](#-the-scientific-foundation-species-dossiers)** • **[ Multimodal Pipeline](#-multimodal-biological-sensing-pipeline)** • **[Comparative Matrix](#-comparative-advantage--state-of-the-art)** • **[ 5-Phase Roadmap](5-phase-research--commercialization-roadmap)** • **[ Bioethics Charter](#️-ethical-boundaries--governance)** • **[🎙️ Pitch Guide](#-ideathon-stage-pitch-guide-3540-mins)**
+**[ Launch Interactive 8-Slide Deck](index.html)** • **[ System Architecture](#️-system-architecture--dataflow)** • **[ Research Foundation](#-the-scientific-foundation-species-dossiers)** • **[ Multimodal Pipeline](#-multimodal-biological-sensing-pipeline)** • **[Comparative Matrix](#-comparative-advantage--state-of-the-art)** • **[ 5-Phase Roadmap](5-phase-research--commercialization-roadmap)** • **[ Bioethics Charter](#️-ethical-boundaries--governance)** • **[ Pitch Guide](#-ideathon-stage-pitch-guide-3540-mins)**
 
 </div>
 
