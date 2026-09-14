@@ -489,6 +489,307 @@ body.doc .s5-photo-row{flex-direction:column;align-items:flex-start}
 body.doc .s5-photo-frame{width:100%;height:140px}
 body.doc .s2-photo-frame,body.doc .s7-photo-frame{height:180px}
 
+/* ============================================================
+   MOBILE RESPONSIVE — Full coverage for all breakpoints
+   ============================================================ */
+
+/* --- Breakpoint: ≤820px (mobile doc mode, supplements body.doc JS toggle) --- */
+@media (max-width: 820px) {
+  /* HUD */
+  .hud{padding:10px 14px 7px}
+  .hudrow{gap:8px;margin-top:8px}
+  .brand span:last-child{display:none}
+  .counter{min-width:50px;font-size:11px;padding:6px 12px}
+  .icobtn{width:32px;height:32px}
+
+  /* Slide general */
+  .slide{padding:18px 14px calc(96px + env(safe-area-inset-bottom))}
+  .stitle{font-size:19px !important;line-height:1.18}
+  .ssub{font-size:11px !important}
+  .eyebrow{font-size:9px}
+  .sfoot{gap:8px;flex-wrap:wrap}
+  .fmeta{font-size:9.5px;flex:1;min-width:0}
+
+  /* Nav buttons */
+  .navb{width:52px;height:52px}
+
+  /* Slide 1 */
+  .s1-wrap{gap:10px}
+  .s1-arch-hero{padding:10px 14px 12px}
+  .s1-flow-row{flex-direction:column;gap:10px;align-items:stretch}
+  .s1-node{padding:10px 12px}
+  .s1-node-title{font-size:12px}
+  .s1-node-desc{font-size:9px}
+  .s1-node-badge{font-size:7.5px}
+  .s1-connector{flex-direction:row;justify-content:center;gap:8px;margin:0;align-items:center}
+  .s1-conn-line .conn-h{width:28px;height:4px}
+  .s1-conn-line .ic{transform:none}
+  .s1-cards-grid{grid-template-columns:1fr;gap:8px}
+  .s1-pillar-card p{font-size:9.5px}
+
+  /* Slide 2 — Research */
+  .dossier-grid{grid-template-columns:1fr;gap:10px}
+  .dossier-photo-box{height:100px}
+  .dossier-anchor-card{flex-direction:column;gap:10px}
+  .dossier-anchor-left{flex-direction:column;align-items:flex-start}
+
+  /* Slide 3 — Multimodal Sensors */
+  .s2-split{grid-template-columns:1fr;gap:12px}
+  .radial-grid{width:280px;height:280px}
+  .radial-center{width:86px;height:86px}
+  .radial-center b{font-size:10px}
+  .radial-node{width:72px}
+  .radial-node b{font-size:8.5px}
+  .radial-node span{font-size:7.5px}
+  .radial-line{width:66px}
+  .s2-photo-panel{padding:10px}
+  .s2-photo-frame{height:140px}
+
+  /* Slide 4 — System Architecture */
+  .s3-system-wrap{gap:8px}
+  .s3-human-card{padding:8px 14px;gap:10px}
+  .s3-human-text b{font-size:11px}
+  .s3-mothership-card{padding:10px 14px}
+  .s3-mothership-title b{font-size:12.5px}
+  .s3-species-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .s3-card{padding:9px 10px}
+  .s3-card-name{font-size:11px}
+  .s3-card-desc{font-size:8.5px}
+  .s3-telemetry-chips{gap:5px}
+
+  /* Slide 5 — Grounding */
+  .tw-grid{grid-template-columns:1fr;gap:14px}
+  .tw-node{padding:9px 12px;gap:10px}
+  .tw-node b{font-size:10.5px}
+  .tw-node span{font-size:9px}
+  .tw-head b{font-size:12.5px}
+
+  /* Slide 6 — Roadmap (overflow fix) */
+  .s5-premium-wrap{gap:8px;overflow:hidden}
+  /* Top two tech cards: stacked, photos hidden to save space */
+  .s5-top-grid{grid-template-columns:1fr 1fr;gap:8px;flex:none}
+  .s5-tech-card{padding:8px 10px}
+  .s5-tech-body{flex-direction:column;align-items:stretch;gap:6px}
+  .s5-photo-box{display:none}  /* hide photos on mobile — they cost too much height */
+  .s5-pill-list{gap:4px}
+  .s5-item{padding:4px 8px}
+  .s5-item-name b{font-size:9px}
+  .s5-status-chip{font-size:7px;padding:1.5px 5px}
+  .s5-tech-head{padding-bottom:5px;margin-bottom:0}
+  .s5-tech-title b{font-size:9.5px}
+  .s5-tech-title span{font-size:8px}
+  /* Roadmap hero: phases scroll horizontally so nothing overflows */
+  .s5-roadmap-hero{padding:8px 10px;flex:1;min-height:0;overflow:hidden}
+  .s5-rm-head{padding-bottom:5px;margin-bottom:0}
+  .s5-rm-title b{font-size:9px}
+  .s5-rm-title span{font-size:8px}
+  .s5-phases-grid{
+    display:flex;flex-direction:row;gap:0;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;padding-bottom:4px;
+    align-items:stretch;
+  }
+  .s5-phases-grid::-webkit-scrollbar{display:none}
+  .s5-phase-card{
+    flex:0 0 140px;min-width:140px;padding:8px 10px;
+    scroll-snap-align:start;
+  }
+  .s5-phase-arr{flex:none;align-self:center;transform:none;padding:0 2px}
+  .s5-phase-arr .ic{width:12px;height:12px}
+  .s5-phase-name{font-size:9.5px;line-height:1.2}
+  .s5-phase-desc{font-size:7.5px;gap:2px}
+  .s5-phase-status{font-size:7px;padding-top:4px}
+
+  /* Slide 7 — Ethics */
+  .s6-premium-wrap{gap:8px;overflow:hidden}
+  .s6-eth-grid{grid-template-columns:1fr;gap:8px;flex:1;min-height:0;overflow:hidden}
+  .s6-card{padding:8px 12px;min-height:0}
+  .s6-card-list{gap:5px}
+  .eth-tile{padding:5px 8px;gap:7px;flex:none}
+  .eth-tile-content b{font-size:9.5px}
+  .eth-tile-content span{font-size:8px}
+  .faq-tile{padding:5px 8px;flex:none}
+  .faq-tile-q{font-size:9px}
+  .faq-tile-a{font-size:8px}
+  .ethics-anchor-hero{
+    flex-direction:column;align-items:flex-start;
+    gap:8px;padding:8px 12px;flex:none
+  }
+  .anchor-left-box{flex-direction:row;align-items:flex-start;gap:10px}
+  .anchor-body{flex:1}
+  .anchor-title{font-size:12px}
+  .anchor-desc{font-size:8.5px}
+  .anchor-badges{flex-direction:row;flex-wrap:wrap;gap:4px}
+  .anchor-badges .badge{font-size:7px;padding:2px 7px}
+
+  /* Slide 8 — Conservation & Vision (overflow fix) */
+  .s8-premium-wrap{gap:8px;overflow:hidden}
+  /* Pipeline: scroll horizontally, never stack vertically */
+  .s8-pipeline{
+    display:flex;flex-direction:row;gap:0;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;flex:none;padding-bottom:4px;
+    align-items:stretch;
+  }
+  .s8-pipeline::-webkit-scrollbar{display:none}
+  .s8-pipe-step{
+    flex:0 0 110px;min-width:110px;padding:8px 9px;
+    scroll-snap-align:start;
+  }
+  .s8-pipe-arr{flex:none;align-self:center;transform:none;padding:0 1px}
+  .s8-pipe-arr .ic{width:12px;height:12px}
+  .s8-step-name{font-size:9.5px}
+  .s8-step-desc{font-size:7.5px}
+  /* Bottom split: single column, constrained heights */
+  .s8-bottom-split{grid-template-columns:1fr;gap:8px;flex:1;min-height:0}
+  .s8-photo-card{padding:8px 10px;min-height:0}
+  .s8-photo-frame{min-height:110px;max-height:140px;flex:none}
+  .s8-photo-metrics{flex-wrap:wrap;gap:4px}
+  .s8-metric-chip{font-size:7.5px;padding:2.5px 7px}
+  .s8-synthesis-col{gap:8px;min-height:0;overflow:hidden}
+  .s8-takeaway-card{padding:8px 12px;flex:none}
+  .s8-takeaway-text{font-size:9.5px;line-height:1.4}
+  .s8-takeaway-checks{grid-template-columns:1fr 1fr;gap:4px;padding-top:5px}
+  .s8-check-item{font-size:7.5px}
+  .s8-quote-card{
+    flex-direction:row;align-items:flex-start;
+    gap:10px;padding:8px 12px;flex:none
+  }
+  .s8-quote-body p{font-size:9px;line-height:1.4}
+  .s8-quote-sig{font-size:7px}
+  .s8-quote-icon{width:32px;height:32px;flex:none}
+
+  /* Roadmap slide */
+  .roadmap-track{flex-direction:column;align-items:stretch;gap:10px}
+  .rm-arr{transform:rotate(90deg);align-self:center}
+
+  /* Photo frames in slide 3 */
+  .s2-photo-frame{height:140px}
+
+  /* Notes drawer */
+  .notes-drawer{bottom:10px;width:calc(100vw - 20px);padding:12px 14px}
+  .notes-grid{grid-template-columns:1fr;gap:8px}
+  .notes-text{font-size:9.5px}
+}
+
+/* --- Breakpoint: ≤480px (compact phones) --- */
+@media (max-width: 480px) {
+  /* HUD compact */
+  .hud{padding:8px 10px 6px}
+  .hudrow{margin-top:6px;gap:5px}
+  .brand{padding:5px 10px;font-size:10px}
+  .brand > span:nth-child(3),
+  .brand > span:nth-child(4){display:none}
+  .dots{padding:7px 12px;gap:7px}
+  .ndot{width:10px;height:10px}
+  .icobtn{width:28px;height:28px}
+  .counter{font-size:10px;padding:5px 10px;min-width:42px}
+
+  /* Slide layout */
+  .slide{padding:14px 11px calc(88px + env(safe-area-inset-bottom))}
+  .stitle{font-size:16px !important}
+  .ssub{font-size:10px !important}
+  .eyebrow{font-size:8px;letter-spacing:.12em}
+  .hbadges{display:none}
+
+  /* Nav buttons closer on tiny screens */
+  .navb{width:46px;height:46px}
+  .navb.prev{left:50%;margin-left:-54px !important}
+  .navb.next{right:50%;margin-right:-54px !important}
+
+  /* Footer meta on tiny screen */
+  .fmeta{display:none}
+  .pageno{font-size:8.5px;padding:4px 10px}
+
+  /* Slide 1 */
+  .s1-node .nic{width:40px;height:40px}
+  .s1-node .nic .ic{width:19px;height:19px}
+  .s1-arch-title b{font-size:9.5px}
+  .s1-node-title{font-size:11px}
+  .s1-node-desc{font-size:8.5px}
+
+  /* Tags & badges */
+  .tag{font-size:8px;padding:5px 10px}
+  .badge{font-size:7.5px;padding:3px 8px}
+
+  /* Radial diagram */
+  .radial-grid{width:220px;height:220px}
+  .radial-center{width:68px;height:68px}
+  .radial-center b{font-size:9px}
+  .radial-node{width:60px}
+  .radial-node b{font-size:7.5px}
+  .radial-node .nic{width:32px;height:32px}
+  .radial-node .nic .ic{width:15px;height:15px}
+  .radial-line{width:52px}
+
+  /* Species grid — single column on tiny */
+  .s3-species-grid{grid-template-columns:1fr !important}
+
+  /* Phase cards (≤480px: narrower scroll cards) */
+  .s5-phase-card{flex:0 0 120px;min-width:120px}
+  .s5-phase-name{font-size:9px}
+  .s5-phase-desc{font-size:7px}
+
+  /* Pipeline steps (≤480px: narrower scroll cards) */
+  .s8-pipe-step{flex:0 0 96px;min-width:96px;padding:7px 8px}
+  .s8-step-name{font-size:9px}
+  .s8-step-desc{font-size:7px}
+
+  /* Ethics/FAQ tiles */
+  .eth-tile-content b{font-size:9px}
+  .faq-tile-q{font-size:8.5px}
+  .faq-tile-a{font-size:7.5px}
+  .anchor-title{font-size:11px}
+  .anchor-desc{font-size:8px}
+
+  /* Quote card */
+  .s8-quote-body p{font-size:8.5px}
+  .s8-takeaway-text{font-size:9px}
+  .s8-takeaway-checks{grid-template-columns:1fr}
+
+  /* Notes drawer */
+  .notes-drawer{padding:10px 11px;bottom:6px}
+  .notes-text{font-size:9px}
+  .notes-label{font-size:7.5px}
+}
+
+/* --- Breakpoint: ≤360px (very small phones) --- */
+@media (max-width: 360px) {
+  .stitle{font-size:14.5px !important}
+  .hbadges,.dots{display:none}
+  .slide{padding:12px 9px calc(84px + env(safe-area-inset-bottom))}
+  .s1-arch-hero{padding:8px 10px 10px}
+  .s1-node-title{font-size:10px}
+  .s1-node-desc{font-size:8px}
+  .radial-grid{width:190px;height:190px}
+}
+
+/* --- Landscape phone fix (height-constrained) --- */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hud{padding:5px 14px 4px}
+  .ptrack{height:8px}
+  .hudrow{margin-top:5px}
+  .slide{min-height:unset;padding:10px 16px calc(72px + env(safe-area-inset-bottom))}
+  .s1-wrap{gap:7px}
+  .s1-arch-hero{padding:7px 12px 9px}
+  .s1-cards-grid{gap:6px}
+  .s1-pillar-card{padding:8px 12px}
+  .s1-pillar-card p{font-size:9px}
+  .body{gap:8px}
+  .stitle{font-size:17px !important}
+  .ssub{font-size:10px !important}
+  .sfoot{margin-top:6px}
+  .navb{width:44px;height:44px}
+  .navb.prev{margin-left:-60px !important}
+  .navb.next{margin-right:-60px !important}
+  .notes-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .radial-grid{width:220px;height:220px}
+  .s5-phases-grid{flex-direction:row}
+  .s5-phase-arr{transform:none}
+  .roadmap-track{flex-direction:row}
+  .rm-arr{transform:none}
+}
+
 @media print{
   @page{size:1280px 720px;margin:0}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
